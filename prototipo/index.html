@@ -334,8 +334,8 @@ body.ligero .barra{animation:none!important}
 .qbtn:active{transform:scale(.93)}
 
 /* ============ NOTAS DE COMIDA Y BAÑO ============ */
-input[type=text]{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none}
-input[type=text]:focus{border-color:var(--primary)}
+input[type=text],input[type=number]{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none}
+input[type=text]:focus,input[type=number]:focus{border-color:var(--primary)}
 textarea{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none;resize:vertical;min-height:62px}
 textarea:focus{border-color:var(--primary)}
 .nota-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:11px 2px;border-bottom:1px dashed var(--glass-border)}
@@ -681,6 +681,7 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
           <div class="water-info">
             <div class="water-ml"><span id="aguaMl">1.250</span><small> ml</small></div>
             <div class="water-sub">de 2.000 ml · <b id="vasosTxt">5 de 8 vasos</b></div>
+            <div class="water-sub" id="ultimaAgua" style="margin-top:4px">Todavía nada hoy 💧</div>
             <!-- Vasos clicables -->
             <div class="glass" id="vasos" style="display:flex;gap:6px;flex-wrap:wrap"></div>
           </div>
@@ -806,6 +807,15 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
               <button class="bell-btn" onclick="event.stopPropagation();toggleBell(this)">🔔</button><div class="tl-check">✓</div>
             </div>
           </div>
+          <div class="card pad-sm" style="margin-top:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+              <div>
+                <div style="font-size:11.5px;font-weight:900;color:var(--muted);letter-spacing:.4px">ÚLTIMO ENTRENO O CORRIDA</div>
+                <div style="font-family:Quicksand;font-weight:700;font-size:17px" id="ultimoEntreno">Sin registros todavía</div>
+              </div>
+              <button class="btn primary" style="padding:10px 14px;font-size:13px;flex-shrink:0" onclick="marcarEntreno()">Hoy corrí o entrené 💪</button>
+            </div>
+          </div>
           <div class="tl-item"><span class="tl-time">19:30</span><span class="tl-dot"></span>
             <div class="tl-card" onclick="toggleEvento(this)">
               <div class="tl-ico">🧘</div><div class="tl-txt"><b>Recuperación</b><span>Estiramientos y foam roller</span></div>
@@ -875,6 +885,22 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
           <div class="avatar">M</div>
           <div><b>Magdalena González</b><span>Grupo 2S3121 · II Año · Diurno</span></div>
           <span class="chip" style="margin-left:auto">✏️</span>
+        </div>
+
+        <!-- Mis datos -->
+        <div class="section-title">Mis datos</div>
+        <div class="card pad-sm">
+          <div style="font-size:12px;font-weight:900;color:var(--muted);letter-spacing:.4px">PESO ACTUAL (KG)</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input type="number" id="inpPeso" min="30" max="200" step="0.1" value="58.4">
+            <button class="btn primary" style="flex-shrink:0;padding:10px 16px" onclick="guardarPesoActual()">Actualizar</button>
+          </div>
+          <div style="font-size:12px;font-weight:900;color:var(--muted);letter-spacing:.4px;margin-top:14px">PESO INICIAL (KG)</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input type="number" id="inpDesde" min="30" max="200" step="0.1" value="54.8">
+            <button class="btn glass" style="flex-shrink:0;padding:10px 16px" onclick="guardarDesde()">Actualizar</button>
+          </div>
+          <div style="font-size:12px;color:var(--muted);font-weight:700;margin-top:10px">Tu peso se guarda en este dispositivo. El horario y las rutinas vienen con tus datos de la uni.</div>
         </div>
 
         <!-- Mis carreras -->
@@ -977,6 +1003,25 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
       </section>
 
     </main>
+
+    <!-- Onboarding: la primera vez pregunta tus objetivos -->
+    <div class="sheet-mask" id="onboarding" style="display:none;align-items:center;justify-content:center" onclick="event.stopPropagation()">
+      <div class="card" style="width:92%;max-width:340px;padding:22px 20px;border-radius:28px;background:var(--glass-strong);backdrop-filter:blur(28px)">
+        <div style="text-align:center">
+          <div style="font-size:38px">🌱</div>
+          <b style="font-family:Quicksand;font-size:20px">¡Bienvenida a MotivaPeso!</b>
+          <div style="font-size:13.5px;color:var(--muted);font-weight:700;margin-top:4px">Cuéntame tus números y empezamos</div>
+        </div>
+        <div style="font-size:11.5px;font-weight:900;color:var(--muted);letter-spacing:.4px;margin-top:16px">PESO ACTUAL (KG)</div>
+        <input type="number" id="onbPeso" min="30" max="200" step="0.1" placeholder="ej: 58,4">
+        <div style="font-size:11.5px;font-weight:900;color:var(--muted);letter-spacing:.4px;margin-top:10px">PESO INICIAL (KG)</div>
+        <input type="number" id="onbDesde" min="30" max="200" step="0.1" placeholder="¿De dónde partiste?">
+        <div style="font-size:11.5px;font-weight:900;color:var(--muted);letter-spacing:.4px;margin-top:10px">META (KG)</div>
+        <input type="number" id="onbMeta" min="30" max="200" step="0.5" placeholder="¿A cuánto quieres llegar?">
+        <button class="btn primary full" style="margin-top:16px" onclick="completarOnboarding()">¡Listo, a ganar terreno! 🚀</button>
+        <button class="btn glass full" style="margin-top:8px;border:0" onclick="completarOnboarding(true)">Usar los datos de ejemplo</button>
+      </div>
+    </div>
 
     <!-- Hoja inferior: registrar baño en 2 toques desde cualquier pantalla -->
     <div class="sheet-mask" id="sheetBano" onclick="cerrarSheetBano()">
@@ -1088,6 +1133,13 @@ function cargarEstado(){
     if(typeof mpEstado.vasos === 'number') vasos = Math.max(0, Math.min(TOTAL_VASOS, mpEstado.vasos));
     if(mpEstado.notasFecha === hoyFecha() && Array.isArray(mpEstado.notas)) notasComida = mpEstado.notas;
     if(mpEstado.banoFecha === hoyFecha() && Array.isArray(mpEstado.bano)) registrosBano = mpEstado.bano;
+    if(typeof mpEstado.pesoActual === 'number') aplicarPeso(mpEstado.pesoActual, true);
+    if(typeof mpEstado.pesoDesde === 'number') pesoDesde = mpEstado.pesoDesde;
+    const ip = document.getElementById('inpPeso');
+    if(ip && typeof mpEstado.pesoActual === 'number') ip.value = mpEstado.pesoActual.toFixed(1);
+    const id2 = document.getElementById('inpDesde');
+    if(id2) id2.value = pesoDesde.toFixed(1);
+    if(!mpEstado.onboarded && !location.search.includes('preview')) setTimeout(abrirOnboarding, 700);
   }catch(e){}
 }
 
@@ -1159,6 +1211,7 @@ const DATOS_PESO = {
   '3m' : { labels:['Feb','','','Mar','','','Abr','','','May','','Jun'], valores:[55.9,56.1,56.4,56.6,56.8,57.1,57.0,57.4,57.7,57.9,58.1,58.4] }
 };
 let rango = '4s';
+let pesoDesde = 54.8;
 
 function fmt(n){ return n.toFixed(1).replace('.',','); }
 
@@ -1262,11 +1315,8 @@ function registrarPeso(){
   hist.prepend(fila);
 
   // Anillo de meta
-  const meta = parseFloat(document.getElementById('metaSlider').value);
-  const desde = 54.8;
-  const pct = Math.max(0, Math.min(100, Math.round((nuevo-desde)/(meta-desde)*100)));
-  document.getElementById('gaugeTxt').innerHTML = pct+'%<small>meta</small>';
-  document.querySelector('.gauge circle:nth-child(2)').setAttribute('stroke-dashoffset', (201-201*pct/100).toFixed(0));
+  mpSet('pesoActual', nuevo);
+  actualizarGauge();
 
   toast('Peso registrado: '+fmt(nuevo)+' kg ⚖️');
 }
@@ -1375,7 +1425,7 @@ function pintarAgua(){
   for(let i=0;i<TOTAL_VASOS;i++){
     const b=document.createElement('button');
     b.className='glass-dot'+(i<vasos?' full':'');
-    b.onclick=()=>{ vasos = (i+1===vasos) ? i : i+1; pintarAgua(); };
+    b.onclick=()=>{ const nuevo = (i+1===vasos) ? i : i+1; if(nuevo > vasos) marcarAgua(); vasos = nuevo; pintarAgua(); };
     cont.appendChild(b);
   }
   const ml = vasos*250;
@@ -1389,7 +1439,7 @@ function pintarAgua(){
   document.getElementById('miniAguaSub').textContent = vasos+' de '+TOTAL_VASOS+' vasos';
   mpSet('vasos', vasos);
 }
-function sumarVaso(){ if(vasos<TOTAL_VASOS){ vasos++; pintarAgua(); toast('¡+'+250+' ml! 💧 '+ (TOTAL_VASOS-vasos>0 ? 'quedan '+(TOTAL_VASOS-vasos)+' vasos' : '¡objetivo cumplido! 🎉')); } else { toast('¡Objetivo diario cumplido! 🎉💧'); } }
+function sumarVaso(){ if(vasos<TOTAL_VASOS){ vasos++; marcarAgua(); pintarAgua(); toast('¡+'+250+' ml! 💧 '+ (TOTAL_VASOS-vasos>0 ? 'quedan '+(TOTAL_VASOS-vasos)+' vasos' : '¡objetivo cumplido! 🎉')); } else { toast('¡Objetivo diario cumplido! 🎉💧'); } }
 function quitarVaso(){ if(vasos>0){ vasos--; pintarAgua(); toast('Vaso retirado'); } }
 
 /* ============================================================
@@ -1586,6 +1636,115 @@ function moverMeta(v){
   const falta = nv - 58.4;
   document.getElementById('metaFalta').textContent =
     falta > 0.05 ? 'Faltan '+falta.toFixed(1).replace('.',',')+' kg' : '¡Meta alcanzada! 💪';
+  actualizarGauge();
+}
+
+/* ----- Peso propio: editar, anillo de meta y datos guardados ----- */
+function aplicarPeso(nuevo, silencioso){
+  document.getElementById('pesoActual').innerHTML = fmt(nuevo)+'<small> kg</small>';
+  ['4s','8s','3m'].forEach(r=>{ DATOS_PESO[r].valores[DATOS_PESO[r].valores.length-1] = nuevo; });
+  renderPeso();
+  actualizarGauge();
+  if(!silencioso){
+    const hist = document.getElementById('historial');
+    const fila = document.createElement('div');
+    fila.className = 'hist-row';
+    fila.innerHTML = '<div><div class="d">Hoy · ajuste</div><div class="dt">Peso actual editado</div></div>'+
+      '<div style="text-align:right"><div class="w">'+fmt(nuevo)+' <small>kg</small></div></div>';
+    hist.prepend(fila);
+  }
+}
+function actualizarGauge(){
+  const actual = parseFloat(document.getElementById('pesoActual').textContent.replace(',','.'));
+  const meta = parseFloat(document.getElementById('metaSlider').value);
+  const escala = Math.max(0.1, meta - pesoDesde);
+  const pct = Math.max(0, Math.min(100, Math.round((actual - pesoDesde) / escala * 100)));
+  document.getElementById('gaugeTxt').innerHTML = pct+'%<small>meta</small>';
+  document.querySelector('.gauge circle:nth-child(2)').setAttribute('stroke-dashoffset', (201 - 201*pct/100).toFixed(0));
+}
+function guardarPesoActual(){
+  const v = parseFloat(document.getElementById('inpPeso').value);
+  if(isNaN(v) || v < 30 || v > 200){ toast('Peso no válido (30 a 200 kg)'); return; }
+  aplicarPeso(v);
+  mpSet('pesoActual', v);
+  toast('Peso actual: '+fmt(v)+' kg ⚖️');
+}
+function guardarDesde(){
+  const v = parseFloat(document.getElementById('inpDesde').value);
+  if(isNaN(v) || v < 30 || v > 200){ toast('Peso no válido (30 a 200 kg)'); return; }
+  pesoDesde = v;
+  mpSet('pesoDesde', v);
+  actualizarGauge();
+  toast('Peso inicial: '+fmt(v)+' kg 🏁');
+}
+
+/* ----- Onboarding: primera vez, pregunta los objetivos ----- */
+function abrirOnboarding(){
+  const o = document.getElementById('onboarding');
+  o.style.display = 'flex';
+  requestAnimationFrame(()=>o.classList.add('show'));
+}
+function cerrarOnboarding(){
+  const o = document.getElementById('onboarding');
+  o.classList.remove('show');
+  setTimeout(()=>{ o.style.display = 'none'; }, 250);
+}
+function completarOnboarding(saltar){
+  if(!saltar){
+    const p = parseFloat(document.getElementById('onbPeso').value);
+    let d = parseFloat(document.getElementById('onbDesde').value);
+    let m = parseFloat(document.getElementById('onbMeta').value);
+    if(isNaN(p) || p < 30 || p > 200){ toast('Pone tu peso actual (30 a 200 kg)'); return; }
+    if(isNaN(d)) d = p;
+    if(isNaN(m)) m = Math.round((p + 4) * 2) / 2;
+    aplicarPeso(p, true);
+    pesoDesde = d;
+    document.getElementById('metaSlider').value = m;
+    moverMeta(String(m));
+    document.getElementById('inpPeso').value = p.toFixed(1);
+    document.getElementById('inpDesde').value = d.toFixed(1);
+    mpSet('pesoActual', p);
+    mpSet('pesoDesde', d);
+  }
+  mpSet('onboarded', true);
+  cerrarOnboarding();
+  toast(saltar ? 'Usando los datos de ejemplo 🌱' : '¡Vamos! Tu plan ya está listo 🚀');
+}
+
+/* ----- Última vez: agua y entreno/correr ----- */
+function haceCuanto(ts){
+  const min = Math.floor((Date.now() - ts) / 60000);
+  if(min < 1) return 'recién';
+  if(min < 60) return 'hace '+min+' min';
+  const h = Math.floor(min/60);
+  if(h < 24) return 'hace '+h+' h';
+  const d = Math.floor(h/24);
+  return 'hace '+d+(d===1 ? ' día' : ' días');
+}
+function marcarAgua(){
+  mpSet('ultimaAgua', Date.now());
+  mostrarUltimaAgua();
+}
+function mostrarUltimaAgua(){
+  const el = document.getElementById('ultimaAgua');
+  if(!el) return;
+  const t = mpEstado.ultimaAgua;
+  el.textContent = t ? 'Última vez: '+haceCuanto(t)+' 💧' : 'Todavía nada hoy 💧';
+}
+function marcarEntreno(){
+  mpSet('ultimoEntreno', hoyFecha());
+  pintarUltimoEntreno();
+  toast('¡Entrenamiento registrado! 💪');
+}
+function pintarUltimoEntreno(){
+  const el = document.getElementById('ultimoEntreno');
+  if(!el) return;
+  const t = mpEstado.ultimoEntreno;
+  if(!t){ el.textContent = 'Sin registros todavía'; return; }
+  const d1 = new Date(t+'T12:00:00');
+  const d0 = new Date(hoyFecha()+'T12:00:00');
+  const dias = Math.round((d0 - d1) / 86400000);
+  el.textContent = dias <= 0 ? '¡Hoy! 🎉' : 'Hace '+dias+(dias === 1 ? ' día' : ' días');
 }
 
 /* ----- Tema claro/oscuro (también desde la luna de la cabecera) ----- */
@@ -1928,6 +2087,8 @@ function restablecerTodo(btn){
 cargarEstado();
 renderPeso();
 pintarAgua();
+mostrarUltimaAgua();
+pintarUltimoEntreno();
 renderNotas();
 renderBano();
 ajustarRutina();
