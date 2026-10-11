@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="claro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MotivaPeso</title>
+    <meta name="description" content="Prototipo de MotivaPeso: frases motivacionales, peso, cargas, agua, baño, horario universitario y exportar datos. Estilo glass cálido.">
+    <meta name="theme-color" content="#FF7A45">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23FF6B6B'/><stop offset='1' stop-color='%23FF9A76'/></linearGradient></defs><rect width='64' height='64' rx='16' fill='url(%23g)'/><path d='M32 13c9 11.5 15 19 15 26a15 15 0 0 1-30 0c0-7 6-14.5 15-26z' fill='white'/><path d='M26 40a6 6 0 0 0 6 6' stroke='%23FF6B6B' stroke-width='3' stroke-linecap='round' fill='none' opacity='.45'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   MOTIVAPESO · PROTOTIPO DE DISEÑO (HTML/CSS/JS puro)
+   Estilo: Glassmorphism con paleta cálida (durazno/coral/ámbar)
+   ============================================================ */
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+/* ---------- Variables de tema CLARO ---------- */
+:root{
+  --bg1:#FFF4E9; --bg2:#FFE0C7; --bg3:#FFCDB4;
+  --blob1:#FFB88C; --blob2:#FF9A76; --blob3:#FFD8A8;
+  --primary:#FF7A45; --primary2:#FF9F6E; --primary-soft:rgba(255,122,69,.14);
+  --water:#3FB8F5; --water-soft:rgba(63,184,245,.16);
+  --success:#2FBE7E; --success-soft:rgba(47,190,126,.15);
+  --warn:#FFB020;
+  --text:#402B20; --muted:#94786A;
+  --glass:rgba(255,255,255,.46); --glass-strong:rgba(255,255,255,.72);
+  --glass-border:rgba(255,255,255,.70);
+  --card-shadow:0 14px 34px -16px rgba(120,60,20,.30);
+  --screen:linear-gradient(165deg,#FFF7EF 0%,#FFE7D3 48%,#FFD8C2 100%);
+  --line-chart:#FF7A45; --line-chart2:#FFB35C;
+  --nav-bg:rgba(255,255,255,.60);
+}
+/* ---------- Variables de tema OSCURO ---------- */
+html[data-tema="oscuro"]{
+  --bg1:#171019; --bg2:#241621; --bg3:#31191F;
+  --blob1:#8A4A2E; --blob2:#B3552F; --blob3:#6E3A5E;
+  --primary:#FF8C57; --primary2:#FFAB74; --primary-soft:rgba(255,140,87,.16);
+  --water:#4FC3F7; --water-soft:rgba(79,195,247,.18);
+  --success:#48D692; --success-soft:rgba(72,214,146,.16);
+  --text:#FFF1E7; --muted:#B39689;
+  --glass:rgba(255,255,255,.065); --glass-strong:rgba(38,25,22,.78);
+  --glass-border:rgba(255,255,255,.13);
+  --card-shadow:0 16px 36px -18px rgba(0,0,0,.75);
+  --screen:linear-gradient(165deg,#1A1216 0%,#261720 55%,#331B21 100%);
+  --line-chart:#FF8C57; --line-chart2:#FFC07A;
+  --nav-bg:rgba(35,23,20,.72);
+}
+html,body{height:100%}
+body{
+  font-family:'Nunito',system-ui,sans-serif;color:var(--text);
+  background:linear-gradient(140deg,var(--bg1),var(--bg2) 55%,var(--bg3));
+  overflow-x:hidden;transition:background .4s,color .4s;
+}
+
+/* ---------- Fondo con blobs desenfocados ---------- */
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.55;pointer-events:none;z-index:0;animation:float 14s ease-in-out infinite alternate}
+.blob.b1{width:420px;height:420px;background:var(--blob1);top:-120px;left:-100px}
+.blob.b2{width:380px;height:380px;background:var(--blob2);bottom:-140px;right:-80px;animation-delay:-5s}
+.blob.b3{width:300px;height:300px;background:var(--blob3);top:40%;left:55%;animation-delay:-9s}
+@keyframes float{to{transform:translate3d(40px,-30px,0) scale(1.08)}}
+
+/* ---------- Escenario (fondo de escritorio) ---------- */
+.stage{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;gap:48px;padding:32px}
+
+/* Panel lateral de revisión (solo pantallas grandes) */
+.side{position:fixed;left:44px;top:50%;transform:translateY(-50%);display:none;flex-direction:column;gap:10px;z-index:5}
+.side h1{font-family:'Quicksand';font-size:26px;letter-spacing:-.5px;margin-bottom:2px}
+.side p{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.side .jump{border:1px solid var(--glass-border);background:var(--glass);backdrop-filter:blur(14px);color:var(--text);font-family:'Nunito';font-weight:700;font-size:13.5px;padding:10px 16px;border-radius:14px;cursor:pointer;text-align:left;transition:.15s}
+.side .jump:hover{background:var(--glass-strong);transform:translateX(4px)}
+.side .hint{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5}
+@media(min-width:1150px){.side{display:flex}}
+
+/* ---------- Marco del teléfono ---------- */
+.phone{
+  position:relative;width:min(414px,100%);height:min(872px,calc(100vh - 64px));
+  border-radius:48px;background:#120D0B;
+  box-shadow:0 0 0 11px #120D0B,0 0 0 13px rgba(255,255,255,.16),0 50px 90px -28px rgba(90,40,10,.55);
+  overflow:hidden;flex-shrink:0;
+}
+.app{position:absolute;inset:0;border-radius:38px;overflow:hidden;background:var(--screen);display:flex;flex-direction:column;transition:background .4s}
+/* blobs propios de la pantalla para dar profundidad */
+.app .blob{position:absolute;opacity:.35;filter:blur(60px);z-index:0}
+.app .blob.b1{width:300px;height:250px;top:-70px;left:-60px}
+.app .blob.b2{width:260px;height:240px;bottom:120px;right:-90px}
+/* isla dinámica */
+.isla{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#120D0B;border-radius:999px;z-index:30}
+
+/* ---------- Barra de estado ---------- */
+.statusbar{position:relative;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:14px 26px 4px;font-size:12.5px;font-weight:800;letter-spacing:.3px}
+.statusbar .sb-right{display:flex;gap:6px;align-items:center}
+
+/* ---------- Cabecera de la app ---------- */
+.appbar{position:relative;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:8px 18px 6px}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;font-size:20px;background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 10px 20px -8px rgba(255,122,69,.65)}
+.brand .name{font-family:'Quicksand';font-weight:700;font-size:19px;letter-spacing:-.4px;line-height:1.05}
+.brand .name small{display:block;font-family:'Nunito';font-weight:700;font-size:10.5px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+.icon-btn{width:42px;height:42px;border-radius:15px;border:1px solid var(--glass-border);background:var(--glass);backdrop-filter:blur(14px);color:var(--text);display:grid;place-items:center;cursor:pointer;transition:.15s}
+.icon-btn:active{transform:scale(.92)}
+
+/* ---------- Área de contenido ---------- */
+.content{position:relative;z-index:10;flex:1;overflow-y:auto;padding:6px 18px 108px;scrollbar-width:none}
+.content::-webkit-scrollbar{display:none}
+.screen{display:none}
+.screen.active{display:block;animation:fadeUp .42s cubic-bezier(.22,.9,.3,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ---------- Tarjetas glass ---------- */
+.card{background:var(--glass);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);border:1px solid var(--glass-border);border-radius:26px;padding:18px;box-shadow:var(--card-shadow);margin-bottom:14px}
+.card.pad-sm{padding:14px 16px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.section-title{font-family:'Quicksand';font-weight:700;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:18px 2px 10px}
+.screen-head{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 14px}
+.screen-head h2{font-family:'Quicksand';font-weight:700;font-size:24px;letter-spacing:-.5px}
+
+/* ---------- Chips / etiquetas ---------- */
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;padding:7px 13px;border-radius:999px;background:var(--primary-soft);color:var(--primary);border:1px solid transparent}
+.chip.goal{background:var(--success-soft);color:var(--success)}
+.chip.water{background:var(--water-soft);color:var(--water)}
+.chip.plain{background:var(--glass);border-color:var(--glass-border);color:var(--muted)}
+
+/* ---------- Botones ---------- */
+.btn{border:0;border-radius:18px;padding:14px 18px;font-family:'Nunito';font-weight:800;font-size:15px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.965)}
+.btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;box-shadow:0 14px 26px -12px rgba(255,122,69,.75)}
+.btn.glass{background:var(--glass);border:1px solid var(--glass-border);color:var(--text);backdrop-filter:blur(12px)}
+.btn.water{background:linear-gradient(135deg,var(--water),#6FD0FF);color:#fff;box-shadow:0 14px 26px -12px rgba(63,184,245,.7)}
+.btn.full{width:100%}
+.btn-row{display:flex;gap:10px;margin-top:14px}
+.btn-row .btn{flex:1}
+
+/* ---------- Navegación inferior ---------- */
+.bottomnav{position:absolute;left:12px;right:12px;bottom:14px;z-index:40;height:70px;display:flex;padding:7px 6px;border-radius:30px;background:var(--nav-bg);backdrop-filter:blur(26px) saturate(160%);-webkit-backdrop-filter:blur(26px) saturate(160%);border:1px solid var(--glass-border);box-shadow:0 18px 40px -16px rgba(90,40,10,.45)}
+.nav-btn{flex:1;border:0;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:'Nunito';font-weight:800;font-size:10.5px;color:var(--muted);border-radius:22px;transition:.18s}
+.nav-btn .ic{width:46px;height:28px;display:grid;place-items:center;border-radius:16px;transition:.18s}
+.nav-btn.active{color:var(--primary)}
+.nav-btn.active .ic{background:var(--primary-soft);transform:translateY(-1px)}
+.nav-btn:active .ic{transform:scale(.9)}
+
+/* ---------- Toast flotante ---------- */
+.toast{position:absolute;left:50%;bottom:100px;transform:translate(-50%,20px);z-index:60;background:rgba(40,25,18,.88);color:#FFEFE4;font-weight:800;font-size:13.5px;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(10px);max-width:86%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ============ PANTALLA: INICIO ============ */
+.greet{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:6px 2px 14px}
+.greet h2{font-family:'Quicksand';font-weight:700;font-size:25px;letter-spacing:-.6px}
+.greet p{font-size:13.5px;color:var(--muted);font-weight:700;margin-top:3px}
+.streak{flex-shrink:0;background:linear-gradient(135deg,rgba(255,176,32,.22),rgba(255,122,69,.18));border:1px solid rgba(255,176,32,.35);color:#E08A00;font-weight:900;font-size:13px;padding:9px 14px;border-radius:999px;display:flex;gap:5px;align-items:center}
+html[data-tema="oscuro"] .streak{color:#FFC861}
+
+.quote-card{position:relative;overflow:hidden}
+.quote-card .qmark{position:absolute;right:14px;top:-14px;font-size:120px;font-family:Georgia,serif;color:var(--primary);opacity:.10;line-height:1}
+.quote-tag{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:var(--primary);margin-bottom:10px}
+.quote-tag::before{content:"";width:22px;height:3px;border-radius:2px;background:var(--primary)}
+#fraseTexto{font-family:'Quicksand';font-weight:600;font-size:21px;line-height:1.42;letter-spacing:-.3px;position:relative;transition:.3s}
+#fraseTexto.swap{opacity:0;transform:translateY(10px)}
+
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
+.mini{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(16px);border-radius:22px;padding:14px 15px;box-shadow:var(--card-shadow)}
+.mini .lab{font-size:11.5px;font-weight:800;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+.mini .val{font-family:'Quicksand';font-weight:700;font-size:22px;margin-top:4px;letter-spacing:-.5px}
+.mini .val small{font-size:13px;font-weight:700;color:var(--muted)}
+.mini .sub{font-size:12px;font-weight:800;margin-top:2px}
+.mini .sub.up{color:var(--success)}
+.mini .sub.blue{color:var(--water)}
+.mini .sub.orange{color:var(--primary)}
+
+.ach-row{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+.ach-row::-webkit-scrollbar{display:none}
+.ach{flex-shrink:0;display:flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(14px);border-radius:18px;padding:11px 15px;font-size:13px;font-weight:800;box-shadow:var(--card-shadow)}
+.ach span.emo{font-size:17px}
+
+/* ============ PANTALLA: PESO ============ */
+.hero-stat{display:flex;justify-content:space-between;align-items:center}
+.big-num{font-family:'Quicksand';font-weight:700;font-size:52px;letter-spacing:-2.5px;line-height:1;margin:6px 0 8px}
+.big-num small{font-size:20px;font-weight:700;color:var(--muted);letter-spacing:0}
+.delta{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:900;padding:7px 13px;border-radius:999px}
+.delta.up{background:var(--success-soft);color:var(--success)}
+.delta.down{background:rgba(255,90,90,.14);color:#E05555}
+.gauge{width:76px;height:76px;position:relative;flex-shrink:0}
+.gauge svg{transform:rotate(-90deg)}
+.gauge .g-txt{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;font-size:14.5px;text-align:center;line-height:1.15}
+.gauge .g-txt small{display:block;font-size:9.5px;color:var(--muted);letter-spacing:.5px}
+
+.seg{display:flex;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:3px;gap:2px}
+.seg button{border:0;background:none;font-family:'Nunito';font-weight:800;font-size:12px;color:var(--muted);padding:7px 12px;border-radius:11px;cursor:pointer;transition:.15s}
+.seg button.on{background:var(--primary);color:#fff;box-shadow:0 6px 14px -6px rgba(255,122,69,.8)}
+.chart-wrap{margin-top:12px}
+.chart-wrap svg{display:block;width:100%;height:auto}
+.legend{display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--muted);margin-top:6px;padding:0 4px}
+
+.hist-row{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px dashed var(--glass-border)}
+.hist-row:last-child{border-bottom:0}
+.hist-row .d{font-weight:800;font-size:14.5px}
+.hist-row .dt{font-size:12px;color:var(--muted);font-weight:700}
+.hist-row .w{font-family:'Quicksand';font-weight:700;font-size:17px}
+.hist-row .w small{color:var(--muted);font-size:12px}
+.hist-row .dw{font-size:12.5px;font-weight:900;text-align:right}
+.hist-row .dw.up{color:var(--success)} .hist-row .dw.down{color:#E05555} .hist-row .dw.flat{color:var(--muted)}
+
+/* ============ PANTALLA: CARGAS ============ */
+.chips-scroll{display:flex;gap:9px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.chips-scroll::-webkit-scrollbar{display:none}
+.ej-chip{flex-shrink:0;border:1px solid var(--glass-border);background:var(--glass);backdrop-filter:blur(12px);color:var(--muted);font-family:'Nunito';font-weight:800;font-size:13px;padding:9px 16px;border-radius:999px;cursor:pointer;transition:.15s}
+.ej-chip.on{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;border-color:transparent;box-shadow:0 10px 20px -10px rgba(255,122,69,.8)}
+.pr-row{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.pr-num{font-family:'Quicksand';font-weight:700;font-size:44px;letter-spacing:-2px;line-height:1}
+.pr-num small{font-size:17px;color:var(--muted)}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat3 .mini{padding:12px 10px;text-align:center;border-radius:20px}
+.stat3 .val{font-size:17.5px}
+
+/* ============ PANTALLA: AGUA ============ */
+.water-card{display:flex;gap:18px;align-items:center}
+.glass-svg{width:132px;flex-shrink:0;filter:drop-shadow(0 14px 18px rgba(63,184,245,.35))}
+.glass-svg .water-rect{transition:transform .8s cubic-bezier(.3,1.4,.5,1)}
+.wave-g{animation:waveMove 3.2s linear infinite}
+@keyframes waveMove{to{transform:translateX(-100px)}}
+.water-info{flex:1}
+.water-ml{font-family:'Quicksand';font-weight:700;font-size:40px;letter-spacing:-1.6px;color:var(--water);line-height:1}
+.water-ml small{font-size:16px;color:var(--muted);letter-spacing:0}
+.water-sub{font-size:13px;font-weight:800;color:var(--muted);margin:6px 0 12px}
+.glasses{display:flex;gap:6px;flex-wrap:wrap}
+.glass-dot{width:30px;height:36px;border-radius:6px 6px 10px 10px;border:2.5px solid var(--water);background:transparent;cursor:pointer;position:relative;transition:.2s;overflow:hidden}
+.glass-dot::after{content:"";position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,rgba(79,195,247,.55),var(--water));transition:height .35s}
+.glass-dot.full::after{height:100%}
+.glass-dot:active{transform:scale(.88)}
+.progress{height:12px;border-radius:999px;background:var(--water-soft);overflow:hidden;margin-top:14px}
+.progress i{display:block;height:100%;width:62%;border-radius:999px;background:linear-gradient(90deg,var(--water),#7FD6FF);transition:width .7s cubic-bezier(.3,1.2,.5,1)}
+
+/* ============ PANTALLA: BAÑO ============ */
+.bstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bstat{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:13px 8px;text-align:center}
+.bstat .v{font-family:'Quicksand';font-weight:700;font-size:22px;line-height:1.1}
+.bstat .l{font-size:11px;color:var(--muted);font-weight:800;margin-top:2px}
+.bchart{display:flex;gap:8px;align-items:flex-end;height:150px;padding:12px 4px 0}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%}
+.bstack{flex:1;display:flex;flex-direction:column;justify-content:flex-end;width:100%;max-width:28px;border-radius:10px;overflow:hidden;background:var(--glass);border:1px solid var(--glass-border)}
+.bseg{width:100%;transition:height .6s cubic-bezier(.3,1.1,.5,1)}
+.bseg.orina{background:linear-gradient(180deg,#6FD0FF,var(--water))}
+.bseg.evac{background:linear-gradient(180deg,#C08457,#8B5E3C)}
+.bcol span{font-size:10px;font-weight:800;color:var(--muted)}
+.bleyenda{display:flex;gap:16px;justify-content:center;margin-top:12px}
+.bleyenda b{font-size:11.5px;font-weight:800;color:var(--muted);display:flex;align-items:center;gap:5px}
+.punto{width:9px;height:9px;border-radius:50%;display:inline-block}
+.del-x{border:0;background:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1}
+.del-x:active{color:#E05555}
+
+/* ============ PANTALLA: HORARIO ============ */
+.tl{position:relative;padding-left:64px}
+.tl::before{content:"";position:absolute;left:47px;top:8px;bottom:8px;width:2.5px;background:linear-gradient(180deg,var(--primary),rgba(255,122,69,.08));border-radius:2px}
+.tl-item{position:relative;margin-bottom:12px}
+.tl-time{position:absolute;left:-64px;top:14px;width:42px;text-align:right;font-size:12px;font-weight:900;color:var(--muted)}
+.tl-dot{position:absolute;left:-21.5px;top:18px;width:11px;height:11px;border-radius:50%;background:var(--primary);border:2.5px solid var(--bg1);box-shadow:0 0 0 2px var(--primary-soft)}
+.tl-card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(16px);border-radius:20px;padding:13px 14px;display:flex;align-items:center;gap:11px;box-shadow:var(--card-shadow);transition:.2s;cursor:pointer}
+.tl-card:active{transform:scale(.98)}
+.tl-card .tl-ico{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;font-size:17.5px;background:var(--primary-soft);flex-shrink:0}
+.tl-card .tl-txt{flex:1;min-width:0}
+.tl-card .tl-txt b{display:block;font-size:14.5px;font-weight:800}
+.tl-card .tl-txt span{font-size:12px;color:var(--muted);font-weight:700}
+.tl-check{width:26px;height:26px;border-radius:50%;border:2.5px solid var(--muted);display:grid;place-items:center;flex-shrink:0;color:transparent;transition:.2s;font-size:13px}
+.tl-card.done{opacity:.62}
+.tl-card.done .tl-txt b{text-decoration:line-through;text-decoration-color:var(--muted)}
+.tl-card.done .tl-check{background:var(--success);border-color:var(--success);color:#fff}
+.bell-btn{border:0;background:var(--primary-soft);width:32px;height:32px;border-radius:11px;cursor:pointer;font-size:14px;flex-shrink:0;transition:.15s}
+.bell-btn.off{background:rgba(140,130,125,.15);opacity:.55;filter:grayscale(1)}
+.bell-btn:active{transform:scale(.88)}
+
+/* ============ PANTALLA: HORARIO · VISTA UNIVERSIDAD ============ */
+.uni-row{display:flex;gap:12px;align-items:center;background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(16px);border-radius:20px;padding:13px 14px;box-shadow:var(--card-shadow);margin-bottom:10px;position:relative;overflow:hidden}
+.uni-row::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:4px;border-radius:0 5px 5px 0;background:var(--primary)}
+.uni-row.now{border-color:rgba(255,122,69,.55);box-shadow:0 14px 30px -14px rgba(255,122,69,.65);background:var(--glass-strong)}
+.uni-row.done{opacity:.6}
+.uni-time{font-family:'Quicksand';font-weight:700;font-size:14.5px;width:56px;flex-shrink:0;text-align:center;background:var(--primary-soft);color:var(--primary);border-radius:14px;padding:9px 0;line-height:1.2}
+.uni-time small{display:block;font-size:9.5px;font-weight:800;color:var(--muted);letter-spacing:.4px}
+.uni-txt{flex:1;min-width:0}
+.uni-txt b{display:block;font-size:15px;font-weight:800}
+.uni-txt span{font-size:12.5px;color:var(--muted);font-weight:700}
+.uni-badge{font-size:10.5px;font-weight:900;background:var(--success-soft);color:var(--success);padding:5px 10px;border-radius:999px;flex-shrink:0}
+.uni-badge.hot{background:var(--primary-soft);color:var(--primary)}
+#segHor{width:100%;margin-bottom:14px}
+#segHor button{flex:1;padding:9px 8px;font-size:13.5px}
+
+/* ============ PANTALLA: AJUSTES ============ */
+.profile{display:flex;align-items:center;gap:14px}
+.avatar{width:56px;height:56px;border-radius:20px;background:linear-gradient(135deg,var(--primary),var(--primary2));display:grid;place-items:center;font-family:'Quicksand';font-weight:700;font-size:24px;color:#fff;box-shadow:0 12px 24px -10px rgba(255,122,69,.7)}
+.profile b{display:block;font-size:17.5px;font-weight:900}
+.profile span{font-size:13px;color:var(--muted);font-weight:700}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 2px;border-bottom:1px dashed var(--glass-border)}
+.set-row:last-child{border-bottom:0}
+.set-row .sr-txt b{display:block;font-size:15px;font-weight:800}
+.set-row .sr-txt span{font-size:12.5px;color:var(--muted);font-weight:700}
+.sr-ico{width:38px;height:38px;border-radius:13px;background:var(--primary-soft);display:grid;place-items:center;font-size:17px;flex-shrink:0}
+.set-left{display:flex;align-items:center;gap:12px}
+/* Interruptores */
+.sw{width:52px;height:30px;border-radius:999px;border:0;background:rgba(140,130,125,.30);position:relative;cursor:pointer;transition:.25s;flex-shrink:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.25s;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.sw.on{background:var(--success)}
+.sw.on::after{left:25px}
+/* Slider meta */
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:10px;border-radius:999px;background:var(--primary-soft);outline:none;margin-top:14px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary2));border:3px solid #fff;box-shadow:0 6px 14px -4px rgba(255,122,69,.9);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--primary);border:3px solid #fff;cursor:pointer}
+.meta-val{font-family:'Quicksand';font-weight:700;font-size:34px;letter-spacing:-1.2px;color:var(--primary)}
+.meta-val small{font-size:15px;color:var(--muted)}
+.theme-seg{display:flex;gap:8px}
+.theme-seg button{border:1px solid var(--glass-border);background:var(--glass);color:var(--muted);font-family:'Nunito';font-weight:800;font-size:13px;padding:9px 15px;border-radius:14px;cursor:pointer;transition:.15s}
+.theme-seg button.on{background:var(--primary);color:#fff;border-color:transparent}
+.foot-note{text-align:center;font-size:11.5px;color:var(--muted);font-weight:700;padding:8px 0 4px;letter-spacing:.4px}
+
+/* ============ AJUSTES · PERSONALIZACIÓN ============ */
+#paletaBtns{display:flex;gap:13px;flex-wrap:wrap;padding:4px 2px 10px}
+.sw-color{width:38px;height:38px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;transition:.2s;box-shadow:0 6px 14px -6px var(--c)}
+.sw-color.on{outline:3px solid var(--c);outline-offset:2px;transform:scale(1.1)}
+#segFuente button{padding:7px 14px;font-weight:900;font-size:13px}
+.hdr-btns{display:flex;gap:8px}
+/* Modo ligero: sin blur ni animaciones, para que vaya muy fluido */
+body.ligero *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transition-duration:.01s!important}
+body.ligero .blob{animation:none}
+body.ligero .wave-g{animation:none}
+body.ligero .screen.active{animation:none}
+body.ligero .anim-linea{transition:none!important}
+body.ligero .barra{animation:none!important}
+
+/* ============ REGISTRO RÁPIDO (INICIO) ============ */
+.qrow{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.qbtn{border:1px solid var(--glass-border);background:var(--glass);border-radius:20px;padding:13px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:'Nunito';font-weight:800;font-size:12.5px;color:var(--text);cursor:pointer;box-shadow:var(--card-shadow);transition:.15s}
+.qbtn .ic{font-size:21px;line-height:1}
+.qbtn:active{transform:scale(.93)}
+
+/* ============ NOTAS DE COMIDA Y BAÑO ============ */
+input[type=text]{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none}
+input[type=text]:focus{border-color:var(--primary)}
+textarea{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none;resize:vertical;min-height:62px}
+textarea:focus{border-color:var(--primary)}
+.nota-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:11px 2px;border-bottom:1px dashed var(--glass-border)}
+.nota-row:last-child{border-bottom:0}
+.nota-row .nt{font-size:14px;font-weight:700;flex:1;line-height:1.35}
+.nota-row .nh{font-size:11px;font-weight:900;color:var(--primary);background:var(--primary-soft);border-radius:8px;padding:3px 8px;white-space:nowrap}
+.vacio{text-align:center;color:var(--muted);font-size:13px;font-weight:700;padding:14px 6px}
+
+/* ============ HORARIO · TABLA Y COLOR DE MATERIAS ============ */
+#segCarga{width:100%;margin-bottom:12px}
+#segCarga button{flex:1;padding:9px 8px;font-size:13.5px}
+.uni-info{display:flex;gap:8px;flex-wrap:wrap;margin:-2px 0 12px}
+.uni-info span{font-size:12.5px;color:var(--muted);font-weight:700}
+.uni-info b{color:var(--primary)}
+.tabla-wrap{overflow-x:auto;margin-top:10px;border-radius:16px;border:1px solid var(--glass-border);-webkit-overflow-scrolling:touch}
+.uni-tabla{border-collapse:collapse;font-size:10.5px;min-width:560px;width:100%}
+.uni-tabla th{background:var(--primary);color:#fff;padding:8px 5px;font-weight:900;text-align:center;font-size:10.5px;letter-spacing:.4px}
+.uni-tabla td{border:1px solid var(--glass-border);padding:4px 3px;text-align:center;vertical-align:middle;color:var(--text);line-height:1.25}
+.uni-tabla td.hr{background:var(--glass-strong);color:var(--primary);font-weight:900;white-space:nowrap;font-size:10px;position:sticky;left:0;z-index:2}
+.celda{display:block;border-radius:8px;padding:4px 3px;font-size:9.5px;line-height:1.3}
+.celda b{display:block;font-weight:900}
+.celda small{font-size:8.5px;font-weight:800;opacity:.8}
+.leyenda-uni{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.leyenda-uni .celda{width:auto;padding:4px 9px;font-size:10px}
+/* Colores por materia (misma idea que tu bitácora, adaptada al tema cálido) */
+.mc-estad{background:rgba(168,85,247,.16);color:#7C3AED}
+.mc-embe{background:rgba(34,197,94,.16);color:#16A34A}
+.mc-ciber{background:rgba(225,29,72,.13);color:#E11D48}
+.mc-cripto{background:rgba(234,88,12,.15);color:#EA580C}
+.mc-web{background:rgba(37,99,235,.13);color:#2563EB}
+.mc-i402b{background:rgba(219,39,119,.13);color:#DB2777}
+.mc-i405{background:rgba(8,145,178,.15);color:#0891B2}
+.mc-med401{background:rgba(168,85,247,.16);color:#7C3AED}
+.mc-med402{background:rgba(79,70,229,.14);color:#4F46E5}
+.mc-i404{background:rgba(13,148,136,.15);color:#0D9488}
+.mc-i406{background:rgba(225,29,72,.13);color:#E11D48}
+.mc-der401{background:rgba(202,138,4,.16);color:#CA8A04}
+html[data-tema="oscuro"] .celda{filter:brightness(1.55) saturate(1.05)}
+
+/* ============ HOJA INFERIOR · REGISTRO RÁPIDO DE BAÑO ============ */
+.sheet-mask{position:absolute;inset:0;z-index:70;background:rgba(30,18,12,.45);backdrop-filter:blur(4px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:.25s}
+.sheet-mask.show{opacity:1;pointer-events:auto}
+.sheet{width:100%;background:var(--glass-strong);backdrop-filter:blur(28px);border:1px solid var(--glass-border);border-radius:28px 28px 0 0;padding:12px 18px 20px;transform:translateY(100%);transition:.3s cubic-bezier(.3,1.1,.5,1)}
+.sheet-mask.show .sheet{transform:none}
+.sheet-grab{width:44px;height:5px;border-radius:3px;background:var(--glass-border);margin:2px auto 12px}
+.sheet-title{display:block;font-family:'Quicksand';font-size:18px;margin-bottom:14px;text-align:center}
+.sheet-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.sheet-btn{border:0;border-radius:20px;padding:16px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:'Nunito';font-weight:900;font-size:14px;color:#fff;transition:.15s}
+.sheet-btn .emo{font-size:30px;line-height:1}
+.sheet-btn:active{transform:scale(.95)}
+.sheet-btn.orina{background:linear-gradient(135deg,var(--water),#6FD0FF);box-shadow:0 12px 24px -10px rgba(63,184,245,.8)}
+.sheet-btn.evac{background:linear-gradient(135deg,#C08457,#8B5E3C);box-shadow:0 12px 24px -10px rgba(150,100,60,.7)}
+.sheet-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.sheet-chips .ej-chip{font-size:12px;padding:7px 13px}
+
+/* Accesibilidad y rendimiento */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+body.ligero .bseg{transition:none}
+body.ligero .sheet,body.ligero .sheet-mask{transition:none}
+@media (max-width:560px){ input[type=text]{font-size:16px} }
+
+/* ---------- Móvil: el teléfono ocupa toda la pantalla ---------- */
+@media(max-width:560px){
+  .stage{padding:0;gap:0}
+  .phone{width:100%;height:100dvh;border-radius:0;box-shadow:none;background:transparent}
+  .app{border-radius:0}
+  .isla{display:none}
+  .statusbar{padding-top:max(14px,env(safe-area-inset-top))}
+  .bottomnav{bottom:max(10px,env(safe-area-inset-bottom))}
+}
+</style>
+</head>
+<body>
+
+<!-- Fondo decorativo -->
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+
+<!-- Panel lateral de revisión (solo escritorio ancho) -->
+<aside class="side">
+  <h1>MotivaPeso</h1>
+  <p>Prototipo de la app MotivaPeso: frases motivacionales, peso, cargas, agua, baño, horario universitario y exportar datos. Estilo glass cálido.</p>
+  <button class="jump" onclick="go('home')">🏠 Inicio · frases</button>
+  <button class="jump" onclick="go('peso')">📈 Peso · gráfica</button>
+  <button class="jump" onclick="go('cargas')">🏋️ Cargas · progresión</button>
+  <button class="jump" onclick="go('agua')">💧 Agua · recordatorios</button>
+  <button class="jump" onclick="go('bano')">🚽 Baño · registro y gráfica</button>
+  <button class="jump" onclick="go('horario')">⏰ Horario · rutina</button>
+  <button class="jump" onclick="go('ajustes')">⚙️ Ajustes · tema</button>
+  <p class="hint">Prototipo navegable: usa la barra inferior del teléfono o estos accesos. Todo es interactivo (frases, gráficas, vasos, checklist, exportar…). Tus registros se guardan en el navegador.</p>
+</aside>
+
+<div class="stage">
+<div class="phone">
+  <div class="isla"></div>
+  <div class="app">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+
+    <!-- ===== Barra de estado ===== -->
+    <div class="statusbar">
+      <span id="reloj">9:41</span>
+      <span class="sb-right">
+        <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4" y="5" width="3" height="6" rx="1"/><rect x="8" y="2.5" width="3" height="8.5" rx="1"/><rect x="12" y="0" width="3" height="11" rx="1" opacity=".35"/></svg>
+        <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10.5 5.6 8.1a3.4 3.4 0 0 1 4.8 0zM3.4 5.9 2 4.5a8.5 8.5 0 0 1 12 0l-1.4 1.4a6.5 6.5 0 0 0-9.2 0z"/></svg>
+        <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="19" height="10" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="13" height="7" rx="1.8" fill="currentColor"/><path d="M21 3.5v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity=".5"/></svg>
+      </span>
+    </div>
+
+    <!-- ===== Cabecera ===== -->
+    <header class="appbar">
+      <div class="brand">
+        <div class="logo">🥑</div>
+        <div class="name">MotivaPeso<small>Gana peso con constancia</small></div>
+      </div>
+      <div class="hdr-btns">
+      <button class="icon-btn" id="btnTemaQuick" onclick="temaRapido()" title="Modo noche/día">🌙</button>
+      <button class="icon-btn" id="btnHeader" onclick="headerTap()" title="Ajustes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      </div>
+    </header>
+
+    <!-- ===== Contenido ===== -->
+    <main class="content" id="contenido">
+
+      <!-- ============ INICIO ============ -->
+      <section class="screen active" id="scr-home">
+        <div class="greet">
+          <div>
+            <h2 id="greetTit">¡Buenos días! 👋</h2>
+            <p id="greetSub">Listo para ganar terreno hoy</p>
+          </div>
+          <span class="streak">🔥 12 días</span>
+        </div>
+
+        <!-- Tarjeta con frase motivacional -->
+        <div class="card quote-card">
+          <div class="qmark">”</div>
+          <div class="quote-tag">Frase del día</div>
+          <p id="fraseTexto">Subir de peso con salud es construir cimientos, no relleno.</p>
+          <div class="btn-row">
+            <button class="btn primary" onclick="nuevaFrase()">✨ Nueva frase</button>
+            <button class="btn glass" onclick="compartirFrase()">📤 Compartir</button>
+          </div>
+        </div>
+
+        <!-- Registro rápido: menos clicks para lo de todos los días -->
+        <div class="section-title">Registro rápido</div>
+        <div class="qrow">
+          <button class="qbtn" onclick="go('peso')"><span class="ic">⚖️</span>Peso</button>
+          <button class="qbtn" onclick="sumarVaso()"><span class="ic">💧</span>+250 ml</button>
+          <button class="qbtn" onclick="irNota()"><span class="ic">🍽️</span>Comida</button>
+          <button class="qbtn" onclick="abrirSheetBano()"><span class="ic">🚽</span>Baño</button>
+        </div>
+
+        <!-- Mini estadísticas del día -->
+        <div class="section-title">Tu día de un vistazo</div>
+        <div class="mini-grid">
+          <div class="mini" onclick="go('peso')" style="cursor:pointer">
+            <div class="lab">Peso actual</div>
+            <div class="val">58,4 <small>kg</small></div>
+            <div class="sub up">▲ +0,5 kg esta semana</div>
+          </div>
+          <div class="mini" onclick="go('agua')" style="cursor:pointer">
+            <div class="lab">Agua de hoy</div>
+            <div class="val" id="miniAgua">1.250 <small>/ 2.000 ml</small></div>
+            <div class="sub blue" id="miniAguaSub">5 de 8 vasos</div>
+          </div>
+          <div class="mini" onclick="go('cargas')" style="cursor:pointer">
+            <div class="lab">Series · semana</div>
+            <div class="val">48</div>
+            <div class="sub orange">🏋️ Mié Fuerza A · Vie Fuerza B</div>
+          </div>
+          <div class="mini" onclick="go('horario');vistaHorario('uni')" style="cursor:pointer">
+            <div class="lab">Próxima clase</div>
+            <div class="val" id="miniClaseVal">12:00 <small>h</small></div>
+            <div class="sub" id="miniClaseSub">📚 Estadística y Prob.</div>
+          </div>
+        </div>
+
+        <!-- Logros -->
+        <div class="section-title">Logros recientes</div>
+        <div class="ach-row">
+          <div class="ach"><span class="emo">🏆</span> Primera semana</div>
+          <div class="ach"><span class="emo">💪</span> +2 kg ganados</div>
+          <div class="ach"><span class="emo">💧</span> 7 días hidratado</div>
+          <div class="ach"><span class="emo">📈</span> Récord sentadilla</div>
+        </div>
+      </section>
+
+      <!-- ============ PESO ============ -->
+      <section class="screen" id="scr-peso">
+        <div class="screen-head">
+          <h2>Mi peso</h2>
+          <span class="chip goal">🎯 Meta: <b id="chipMeta">62</b> kg</span>
+        </div>
+
+        <!-- Dato principal + anillo de avance -->
+        <div class="card hero-stat">
+          <div>
+            <span style="font-size:12.5px;font-weight:900;color:var(--muted);letter-spacing:.6px;text-transform:uppercase">Peso actual</span>
+            <div class="big-num" id="pesoActual">58,4<small> kg</small></div>
+            <span class="delta up" id="pesoDelta">▲ +0,5 kg esta semana</span>
+          </div>
+          <div class="gauge">
+            <svg width="76" height="76">
+              <circle cx="38" cy="38" r="32" fill="none" stroke="var(--primary-soft)" stroke-width="8"/>
+              <circle cx="38" cy="38" r="32" fill="none" stroke="var(--primary)" stroke-width="8" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="78" style="transition:stroke-dashoffset .8s"/>
+            </svg>
+            <div class="g-txt" id="gaugeTxt">61%<small>meta</small></div>
+          </div>
+        </div>
+
+        <!-- Gráfica de progresión -->
+        <div class="card">
+          <div class="row">
+            <strong style="font-family:Quicksand;font-size:16.5px">Progresión</strong>
+            <div class="seg" id="segPeso">
+              <button class="on" onclick="rangoPeso('4s',this)">4 sem</button>
+              <button onclick="rangoPeso('8s',this)">8 sem</button>
+              <button onclick="rangoPeso('3m',this)">3 meses</button>
+            </div>
+          </div>
+          <div class="chart-wrap" id="chartPeso"></div>
+        </div>
+
+        <button class="btn primary full" onclick="registrarPeso()">＋ Registrar peso de hoy</button>
+
+        <!-- Historial -->
+        <div class="section-title">Historial</div>
+        <div class="card pad-sm" id="historial">
+          <div class="hist-row"><div><div class="d">Hoy</div><div class="dt">Martes · mañana</div></div><div style="text-align:right"><div class="w">58,4 <small>kg</small></div><div class="dw up">▲ +0,2</div></div></div>
+          <div class="hist-row"><div><div class="d">Ayer</div><div class="dt">Lunes · mañana</div></div><div style="text-align:right"><div class="w">58,2 <small>kg</small></div><div class="dw up">▲ +0,3</div></div></div>
+          <div class="hist-row"><div><div class="d">Domingo</div><div class="dt">Mañana</div></div><div style="text-align:right"><div class="w">57,9 <small>kg</small></div><div class="dw down">▼ −0,1</div></div></div>
+          <div class="hist-row"><div><div class="d">Sábado</div><div class="dt">Mañana</div></div><div style="text-align:right"><div class="w">58,0 <small>kg</small></div><div class="dw flat">- 0,0</div></div></div>
+          <div class="hist-row"><div><div class="d">Viernes</div><div class="dt">Mañana</div></div><div style="text-align:right"><div class="w">58,0 <small>kg</small></div><div class="dw up">▲ +0,3</div></div></div>
+        </div>
+
+        <!-- Notas de comida (de tu bitácora, con estilo nuevo) -->
+        <div class="section-title">Notas de comida</div>
+        <div class="card pad-sm">
+          <textarea id="notaComida" placeholder="¿Qué comiste? Ej: 2 huevos + pan integral…"></textarea>
+          <button class="btn primary full" onclick="guardarNota()">＋ Guardar nota</button>
+          <div id="listaNotas" style="margin-top:4px"></div>
+        </div>
+
+        <!-- Baño (orina y evacuación, como en tu bitácora) -->
+        <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+          Baño <span class="chip plain" id="banoChip">0 hoy</span>
+        </div>
+        <div class="card pad-sm" id="cardBano">
+          <div class="btn-row" style="margin-top:0">
+            <button class="btn glass" onclick="registrarBano('Orina')">💧 Orina</button>
+            <button class="btn glass" onclick="registrarBano('Evacuación')">💩 Evacuación</button>
+          </div>
+          <input type="text" id="notaBano" placeholder="Nota opcional (color, consistencia…)">
+          <div id="listaBano" style="margin-top:4px"></div>
+        </div>
+      </section>
+
+      <!-- ============ CARGAS ============ -->
+      <section class="screen" id="scr-cargas">
+        <div class="screen-head">
+          <h2>Mis cargas</h2>
+          <span class="chip">📅 Semana 12</span>
+        </div>
+
+        <!-- Rutina real: Fuerza A (miércoles) o Fuerza B (viernes) -->
+        <div class="seg" id="segCarga">
+          <button class="on" data-v="A" onclick="selRutina('A',this)">💪 Fuerza A · Mié</button>
+          <button data-v="B" onclick="selRutina('B',this)">🔥 Fuerza B · Vie</button>
+        </div>
+        <!-- Selector de ejercicio (se llena según la rutina) -->
+        <div class="chips-scroll" id="chipsEj"></div>
+
+        <!-- Récord del ejercicio -->
+        <div class="card">
+          <div class="pr-row">
+            <div>
+              <span style="font-size:12px;font-weight:900;color:var(--muted);letter-spacing:.6px;text-transform:uppercase">Récord actual</span>
+              <div class="pr-num" id="prNum">50<small> kg</small></div>
+            </div>
+            <span class="delta up" id="prDelta">▲ +0,6 kg en 6 semanas</span>
+          </div>
+          <div style="margin-top:8px;font-size:12.5px;color:var(--muted);font-weight:800" id="objTxt">Objetivo: 3 × 10-12</div>
+        </div>
+
+        <!-- Gráfica de barras -->
+        <div class="card">
+          <div class="row">
+            <strong style="font-family:Quicksand;font-size:16.5px">Progresión de carga</strong>
+            <span class="chip plain">kg × sesión</span>
+          </div>
+          <div class="chart-wrap" id="chartCargas"></div>
+        </div>
+
+        <!-- Resumen semanal -->
+        <div class="stat3">
+          <div class="mini"><div class="lab">Series rutina</div><div class="val" id="statSeries">25</div></div>
+          <div class="mini"><div class="lab">Ejercicios</div><div class="val" id="statEj">6</div></div>
+          <div class="mini"><div class="lab">Sesiones</div><div class="val">2<small>/sem</small></div></div>
+        </div>
+
+        <div style="height:14px"></div>
+        <button class="btn primary full" onclick="toast('Serie añadida a tu rutina 💪')">＋ Añadir serie</button>
+      </section>
+
+      <!-- ============ AGUA ============ -->
+      <section class="screen" id="scr-agua">
+        <div class="screen-head">
+          <h2>Agua</h2>
+          <span class="chip water">🔔 Próxima en 45 min</span>
+        </div>
+
+        <!-- Vaso con onda animada -->
+        <div class="card water-card">
+          <svg class="glass-svg" viewBox="0 0 200 250">
+            <defs>
+              <clipPath id="clipVaso">
+                <path d="M38 18 L162 18 L150 218 Q148 232 134 232 L66 232 Q52 232 50 218 Z"/>
+              </clipPath>
+              <linearGradient id="gradAgua" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7FD6FF"/>
+                <stop offset="100%" stop-color="#2FA8EE"/>
+              </linearGradient>
+            </defs>
+            <g clip-path="url(#clipVaso)">
+              <rect x="0" y="0" width="200" height="250" fill="rgba(79,195,247,.10)"/>
+              <g class="water-rect" id="waterG" style="transform:translateY(100px)">
+                <rect x="0" y="0" width="200" height="260" fill="url(#gradAgua)" opacity=".9"/>
+                <g class="wave-g">
+                  <path d="M-100 6 Q -75 -4 -50 6 T 0 6 T 50 6 T 100 6 T 150 6 T 200 6 T 250 6 V 60 H -100 Z" fill="url(#gradAgua)"/>
+                  <path d="M0 10 Q 25 0 50 10 T 100 10 T 150 10 T 200 10 T 250 10 T 300 10 V 60 H 0 Z" fill="#7FD6FF" opacity=".55"/>
+                </g>
+              </g>
+            </g>
+            <path d="M38 18 L162 18 L150 218 Q148 232 134 232 L66 232 Q52 232 50 218 Z" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="6" stroke-linejoin="round"/>
+          </svg>
+          <div class="water-info">
+            <div class="water-ml"><span id="aguaMl">1.250</span><small> ml</small></div>
+            <div class="water-sub">de 2.000 ml · <b id="vasosTxt">5 de 8 vasos</b></div>
+            <!-- Vasos clicables -->
+            <div class="glass" id="vasos" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+          </div>
+        </div>
+
+        <div class="progress"><i id="aguaBarra" style="width:62.5%"></i></div>
+
+        <div class="btn-row">
+          <button class="btn water" onclick="sumarVaso()">＋ 250 ml</button>
+          <button class="btn glass" onclick="quitarVaso()">− Quitar</button>
+        </div>
+
+        <div class="section-title">Recordatorios</div>
+        <div class="card pad-sm">
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">⏰</div><div class="sr-txt"><b>Aviso cada 1 h 30 min</b><span>De 8:00 a 23:00 mientras despierto</span></div></div>
+            <button class="sw on" onclick="toggleSw(this,'Recordatorio de agua')"></button>
+          </div>
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🎯</div><div class="sr-txt"><b>Objetivo diario</b><span>8 vasos · 2.000 ml al día</span></div></div>
+            <span class="chip goal">Activo</span>
+          </div>
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🌙</div><div class="sr-txt"><b>Modo noche</b><span>Silencio de 23:00 a 8:00</span></div></div>
+            <button class="sw on" onclick="toggleSw(this,'Modo noche')"></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ BAÑO ============ -->
+      <section class="screen" id="scr-bano">
+        <div class="screen-head">
+          <h2>🚽 Mi baño</h2>
+          <span class="chip plain" id="banoChipTop">0 hoy</span>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="card pad-sm">
+          <div class="bstats">
+            <div class="bstat"><div class="v" id="statHoyBano">0</div><div class="l">Hoy</div></div>
+            <div class="bstat"><div class="v" id="statSemBano">0</div><div class="l">7 días</div></div>
+            <div class="bstat"><div class="v" id="statProBano">0</div><div class="l">Prom/día</div></div>
+          </div>
+        </div>
+
+        <!-- Gráfica semanal -->
+        <div class="card pad-sm">
+          <div class="section-title" style="margin-top:0">Últimos 7 días</div>
+          <div class="bchart" id="banoChart"></div>
+          <div class="bleyenda">
+            <b><span class="punto" style="background:#6FD0FF"></span>Orina</b>
+            <b><span class="punto" style="background:#C08457"></span>Evacuación</b>
+          </div>
+        </div>
+
+        <!-- Registro rápido -->
+        <div class="card pad-sm">
+          <div class="btn-row" style="margin-top:0">
+            <button class="btn glass" onclick="registrarBano('Orina')">💧 Orina</button>
+            <button class="btn glass" onclick="registrarBano('Evacuación')">💩 Evacuación</button>
+          </div>
+          <button class="btn primary full" style="margin-top:10px" onclick="abrirSheetBano()">＋ Registrar con nota</button>
+        </div>
+
+        <!-- Historial de hoy -->
+        <div class="section-title">Hoy</div>
+        <div class="card pad-sm"><div id="listaBanoHist"></div></div>
+      </section>
+
+      <!-- ============ HORARIO ============ -->
+      <section class="screen" id="scr-horario">
+        <div class="screen-head">
+          <h2>Mi horario</h2>
+          <span class="chip" id="horarioChip">✅ 3 de 8</span>
+        </div>
+
+        <!-- Dos vistas: rutina diaria del día y clases de la universidad -->
+        <div class="seg" id="segHor">
+          <button class="on" data-v="rutina" onclick="vistaHorario('rutina',this)">🌅 Rutina</button>
+          <button data-v="uni" onclick="vistaHorario('uni',this)">📚 Universidad</button>
+        </div>
+
+        <div id="vistaRutina">
+        <div class="card pad-sm" style="display:flex;align-items:center;gap:13px">
+          <div class="sr-ico" style="width:44px;height:44px;font-size:20px">🔔</div>
+          <div style="flex:1">
+            <b style="font-size:15px">Recordatorios activos</b>
+            <div style="font-size:12.5px;color:var(--muted);font-weight:700">6 avisos programados para hoy</div>
+          </div>
+          <button class="sw on" onclick="toggleSw(this,'Todos los recordatorios')"></button>
+        </div>
+
+        <!-- Línea de tiempo del día -->
+        <div class="section-title" id="tituloDia">Hoy · Martes</div>
+        <div class="tl" id="timeline">
+          <div class="tl-item"><span class="tl-time">07:00</span><span class="tl-dot"></span>
+            <div class="tl-card done" onclick="toggleEvento(this)">
+              <div class="tl-ico">🍳</div><div class="tl-txt"><b>Desayuno</b><span>Avena, huevos y plátano</span></div>
+              <button class="bell-btn" onclick="event.stopPropagation();toggleBell(this)">🔔</button><div class="tl-check">✓</div>
+            </div>
+          </div>
+          <div class="tl-item"><span class="tl-time">10:00</span><span class="tl-dot"></span>
+            <div class="tl-card done" onclick="toggleEvento(this)">
+              <div class="tl-ico">🥜</div><div class="tl-txt"><b>Colación</b><span>Frutos secos y fruta</span></div>
+              <button class="bell-btn" onclick="event.stopPropagation();toggleBell(this)">🔔</button><div class="tl-check">✓</div>
+            </div>
+          </div>
+          <div class="tl-item"><span class="tl-time">12:30</span><span class="tl-dot"></span>
+            <div class="tl-card done" onclick="toggleEvento(this)">
+              <div class="tl-ico">🍚</div><div class="tl-txt"><b>Almuerzo</b><span>Arroz, pollo y ensalada</span></div>
+              <button class="bell-btn" onclick="event.stopPropagation();toggleBell(this)">🔔</button><div class="tl-check">✓</div>
+            </div>
+          </div>
+          <div class="tl-item"><span class="tl-time">16:00</span><span class="tl-dot"></span>
+            <div class="tl-card" onclick="toggleEvento(this)">
+              <div class="tl-ico">🥤</div><div class="tl-txt"><b>Merienda</b><span>Batido de proteína</span></div>
+              <button class="bell-btn" onclick="event.stopPropagation();toggleBell(this)">🔔</button><div class="tl-check">✓</div>
+            </div>
+          </div>
+          <div class="tl-item"><span class="tl-time">17:30</span><span class="tl-dot"></span>
+            <div class="tl-card" onclick="toggleEvento(this)">
+              <div class="tl-ico">🏋️</div><div class="tl-txt"><b id="gymTit">Entrenamiento</b><span id="gymSub">Sesión libre · completa a tu ritmo</span></div>
+              <button class="bell-btn" onclick="event.stopPropagation();toggleBell(this)">🔔</button><div class="tl-check">✓</div>
+            </div>
+          </div>
+          <div class="tl-item"><span class="tl-time">19:30</span><span class="tl-dot"></span>
+            <div class="tl-card" onclick="toggleEvento(this)">
+              <div class="tl-ico">🧘</div><div class="tl-txt"><b>Recuperación</b><span>Estiramientos y foam roller</span></div>
+              <button class="bell-btn off" onclick="event.stopPropagation();toggleBell(this)">🔕</button><div class="tl-check">✓</div>
+            </div>
+          </div>
+          <div class="tl-item"><span class="tl-time">21:30</span><span class="tl-dot"></span>
+            <div class="tl-card" onclick="toggleEvento(this)">
+              <div class="tl-ico">🥗</div><div class="tl-txt"><b>Cena</b><span>Pasta, salmón y verduras</span></div>
+              <button class="bell-btn" onclick="event.stopPropagation();toggleBell(this)">🔔</button><div class="tl-check">✓</div>
+            </div>
+          </div>
+          <div class="tl-item"><span class="tl-time">22:45</span><span class="tl-dot"></span>
+            <div class="tl-card" onclick="toggleEvento(this)">
+              <div class="tl-ico">😴</div><div class="tl-txt"><b>Descanso</b><span>Apagar pantallas · dormir 8 h</span></div>
+              <button class="bell-btn" onclick="event.stopPropagation();toggleBell(this)">🔔</button><div class="tl-check">✓</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn glass full" onclick="toast('Aquí se abriría el formulario para crear un evento ➕')">＋ Añadir evento</button>
+        </div><!-- /vistaRutina -->
+
+        <!-- ===== Vista: clases de la universidad (tus horarios reales) ===== -->
+        <div id="vistaUni" style="display:none">
+          <!-- Selector de carrera -->
+          <div class="chips-scroll" id="chipsCarrera">
+            <button class="ej-chip on" onclick="selCarrera(this,'ciber')">🛡️ Ciberseguridad</button>
+            <button class="ej-chip" onclick="selCarrera(this,'crimi')">🔬 Criminalística</button>
+          </div>
+          <div class="uni-info" id="uniInfo"></div>
+
+          <!-- Resumen del día -->
+          <div class="card pad-sm" style="display:flex;align-items:center;gap:13px">
+            <div class="sr-ico" style="width:44px;height:44px;font-size:20px">📚</div>
+            <div style="flex:1">
+              <b style="font-size:15px" id="uniResumen">Hoy</b>
+              <div style="font-size:12.5px;color:var(--muted);font-weight:700" id="uniProxima"></div>
+            </div>
+          </div>
+
+          <!-- Clases de hoy -->
+          <div id="listaUni"></div>
+
+          <!-- Tabla de la semana completa -->
+          <div class="section-title">Semana completa</div>
+          <div class="tabla-wrap" id="tablaUni"></div>
+          <div class="leyenda-uni" id="leyendaUni"></div>
+
+          <!-- Resumen -->
+          <div class="stat3" style="margin-top:14px">
+            <div class="mini"><div class="lab">Materias</div><div class="val" id="uniMaterias">5</div></div>
+            <div class="mini"><div class="lab">Horas/sem</div><div class="val" id="uniHoras">24</div></div>
+            <div class="mini"><div class="lab">Días clase</div><div class="val" id="uniDias">5</div></div>
+          </div>
+
+          <div style="height:14px"></div>
+          <button class="btn primary full" onclick="toast('Aquí se abriría el formulario para añadir clase 📚')">＋ Añadir clase</button>
+        </div><!-- /vistaUni -->
+      </section>
+
+      <!-- ============ AJUSTES ============ -->
+      <section class="screen" id="scr-ajustes">
+        <div class="screen-head"><h2>Ajustes</h2></div>
+
+        <div class="card profile">
+          <div class="avatar">M</div>
+          <div><b>Magdalena González</b><span>Grupo 2S3121 · II Año · Diurno</span></div>
+          <span class="chip" style="margin-left:auto">✏️</span>
+        </div>
+
+        <!-- Mis carreras -->
+        <div class="section-title">Universidad</div>
+        <div class="card pad-sm">
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🛡️</div><div class="sr-txt"><b>Ing. en Ciberseguridad</b><span>Lun a Vie · 12:00-18:35 h · aulas 2A4 y 213</span></div></div>
+            <span class="chip goal">Activa</span>
+          </div>
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🔬</div><div class="sr-txt"><b>Criminalística</b><span>Mié a Dom · 07:00-22:05 h</span></div></div>
+            <span class="chip goal">Activa</span>
+          </div>
+        </div>
+
+        <!-- Meta de peso -->
+        <div class="card">
+          <div class="row">
+            <strong style="font-family:Quicksand;font-size:16.5px">🎯 Meta de peso</strong>
+            <span class="meta-val"><span id="metaVal">62</span><small> kg</small></span>
+          </div>
+          <input type="range" min="45" max="90" step="0.5" value="62" id="metaSlider" oninput="moverMeta(this.value)">
+          <div class="row" style="margin-top:6px;font-size:12px;font-weight:800;color:var(--muted)"><span>45 kg</span><span id="metaFalta">Faltan 3,6 kg</span><span>90 kg</span></div>
+        </div>
+
+        <!-- Recordatorios -->
+        <div class="section-title">Recordatorios</div>
+        <div class="card pad-sm">
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🍽️</div><div class="sr-txt"><b>Comidas</b><span>Aviso 15 min antes de cada comida</span></div></div>
+            <button class="sw on" onclick="toggleSw(this,'Recordatorio de comidas')"></button>
+          </div>
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">💧</div><div class="sr-txt"><b>Agua</b><span>Cada 1 h 30 min durante el día</span></div></div>
+            <button class="sw on" onclick="toggleSw(this,'Recordatorio de agua')"></button>
+          </div>
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🏋️</div><div class="sr-txt"><b>Entrenamiento</b><span>Días de gym · 17:15 h</span></div></div>
+            <button class="sw on" onclick="toggleSw(this,'Recordatorio de gym')"></button>
+          </div>
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">📈</div><div class="sr-txt"><b>Pesada semanal</b><span>Domingo por la mañana</span></div></div>
+            <button class="sw" onclick="toggleSw(this,'Pesada semanal')"></button>
+          </div>
+        </div>
+
+        <!-- Apariencia y personalización -->
+        <div class="section-title">Apariencia</div>
+        <div class="card pad-sm">
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🌗</div><div class="sr-txt"><b>Tema</b><span>Claro u oscuro</span></div></div>
+            <div class="theme-seg">
+              <button class="on" id="temaClaro" onclick="setTema('claro')">☀️ Claro</button>
+              <button id="temaOscuro" onclick="setTema('oscuro')">🌙 Oscuro</button>
+            </div>
+          </div>
+          <div class="set-row" style="border-bottom:0;padding-bottom:4px">
+            <div class="set-left"><div class="sr-ico">🎨</div><div class="sr-txt"><b>Color de la app</b><span>Elige tu color favorito</span></div></div>
+          </div>
+          <div id="paletaBtns">
+            <button class="sw-color on" data-c="coral" style="--c:#FF7A45" onclick="setColor('coral')" title="Coral"></button>
+            <button class="sw-color" data-c="rosa" style="--c:#F43F5E" onclick="setColor('rosa')" title="Rosa"></button>
+            <button class="sw-color" data-c="ambar" style="--c:#F59E0B" onclick="setColor('ambar')" title="Ámbar"></button>
+            <button class="sw-color" data-c="verde" style="--c:#10B981" onclick="setColor('verde')" title="Verde"></button>
+            <button class="sw-color" data-c="azul" style="--c:#3B82F6" onclick="setColor('azul')" title="Azul"></button>
+            <button class="sw-color" data-c="violeta" style="--c:#8B5CF6" onclick="setColor('violeta')" title="Violeta"></button>
+          </div>
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🔠</div><div class="sr-txt"><b>Tamaño de letra</b><span>Pequeña, normal o grande</span></div></div>
+            <div class="seg" id="segFuente">
+              <button onclick="setFuente(0.9,this)">A−</button>
+              <button class="on" onclick="setFuente(1,this)">A</button>
+              <button onclick="setFuente(1.12,this)">A+</button>
+            </div>
+          </div>
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🪶</div><div class="sr-txt"><b>Modo ligero</b><span>Sin animaciones · más fluido en celulares básicos</span></div></div>
+            <button class="sw" id="swLigero" onclick="toggleLigero(this)"></button>
+          </div>
+        </div>
+
+        <!-- Datos -->
+        <div class="section-title">Datos</div>
+        <div class="card pad-sm">
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">📄</div><div class="sr-txt"><b>Bitácora de hoy</b><span>Peso, comida, baño, agua y rutinas (.txt)</span></div></div>
+            <button class="btn glass" style="padding:9px 14px;font-size:13px" onclick="exportarHoy()">Exportar</button>
+          </div>
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">📚</div><div class="sr-txt"><b>Historial completo</b><span>Todas las semanas y objetivos (.txt)</span></div></div>
+            <button class="btn glass" style="padding:9px 14px;font-size:13px" onclick="exportarTodo()">Exportar</button>
+          </div>
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🗑️</div><div class="sr-txt"><b>Restablecer todo</b><span>Borra registros y preferencias</span></div></div>
+            <button class="btn glass" style="padding:9px 14px;font-size:13px;color:#E05555" onclick="restablecerTodo(this)">Borrar</button>
+          </div>
+        </div>
+
+        <div class="foot-note">MotivaPeso v1.0 · Prototipo de diseño<br>Hecho con cariño para ganar terreno 💪</div>
+      </section>
+
+    </main>
+
+    <!-- Hoja inferior: registrar baño en 2 toques desde cualquier pantalla -->
+    <div class="sheet-mask" id="sheetBano" onclick="cerrarSheetBano()">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-grab"></div>
+        <b class="sheet-title">🚽 ¿Qué registraste?</b>
+        <div class="sheet-btns">
+          <button class="sheet-btn orina" onclick="guardarSheetBano('Orina')"><span class="emo">💧</span>Orina</button>
+          <button class="sheet-btn evac" onclick="guardarSheetBano('Evacuación')"><span class="emo">💩</span>Evacuación</button>
+        </div>
+        <div class="sheet-chips">
+          <button class="ej-chip" onclick="notaSheet('Normal')">Normal</button>
+          <button class="ej-chip" onclick="notaSheet('Líquida')">Líquida</button>
+          <button class="ej-chip" onclick="notaSheet('Dura')">Dura</button>
+          <button class="ej-chip" onclick="notaSheet('Urgente')">Urgente</button>
+        </div>
+        <input type="text" id="notaSheetBano" placeholder="Nota opcional…">
+        <button class="btn glass full" style="margin-top:10px" onclick="cerrarSheetBano()">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== Navegación inferior ===== -->
+    <nav class="bottomnav" aria-label="Navegación principal">
+      <button class="nav-btn active" data-scr="home" onclick="go('home')">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5H15V14H9v7.5H4.5A1.5 1.5 0 0 1 3 20z"/></svg></span>
+        Inicio
+      </button>
+      <button class="nav-btn" data-scr="peso" onclick="go('peso')">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17.5 8.5 11l4 4L21 6"/><path d="M15 6h6v6"/></svg></span>
+        Peso
+      </button>
+      <button class="nav-btn" data-scr="cargas" onclick="go('cargas')">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M7.5 6.5v11M16.5 6.5v11M20 9v6M7.5 12h9"/></svg></span>
+        Cargas
+      </button>
+      <button class="nav-btn" data-scr="agua" onclick="go('agua')">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6.5 6.8 6.5 11a6.5 6.5 0 0 1-13 0C5.5 9.8 12 3 12 3z"/></svg></span>
+        Agua
+      </button>
+      <button class="nav-btn" data-scr="bano" onclick="go('bano')">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16v6a8 8 0 0 1-8 8h0a8 8 0 0 1-8-8V3z"/><path d="M12 17v4M8 21h8"/></svg></span>
+        Baño
+      </button>
+      <button class="nav-btn" data-scr="horario" onclick="go('horario')">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span>
+        Horario
+      </button>
+    </nav>
+
+  </div>
+</div>
+</div>
+
+<script>
+/* ============================================================
+   LÓGICA DEL PROTOTIPO
+   ============================================================ */
+
+/* ---------- Navegación entre pantallas ---------- */
+let pantallaActual = 'home';
+function go(id){
+  pantallaActual = id;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('scr-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.scr===id));
+  document.getElementById('contenido').scrollTop = 0;
+  // La cabecera cambia a "volver" cuando estamos en Ajustes
+  const hb = document.getElementById('btnHeader');
+  hb.innerHTML = (id==='ajustes')
+    ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+    : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+}
+function headerTap(){ go(pantallaActual==='ajustes' ? 'home' : 'ajustes'); }
+
+/* ---------- Reloj de la barra de estado ---------- */
+function tickReloj(){
+  const d = new Date();
+  document.getElementById('reloj').textContent =
+    d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+}
+tickReloj(); setInterval(tickReloj, 20000);
+
+/* ---------- Toast (mensaje flotante) ---------- */
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+/* ---------- Persistencia ligera (localStorage) ---------- */
+const MP_KEY = 'motivapeso_v1';
+let mpEstado = {};
+try{ mpEstado = JSON.parse(localStorage.getItem(MP_KEY) || '{}'); }catch(e){ mpEstado = {}; }
+function guardarEstado(){ try{ localStorage.setItem(MP_KEY, JSON.stringify(mpEstado)); }catch(e){} }
+function mpSet(k, v){ mpEstado[k] = v; guardarEstado(); }
+function guardarBanoEstado(){ mpSet('bano', registrosBano); mpSet('banoFecha', hoyFecha()); }
+function guardarNotasEstado(){ mpSet('notas', notasComida); mpSet('notasFecha', hoyFecha()); }
+function cargarEstado(){
+  try{
+    if(mpEstado.tema === 'oscuro') setTema('oscuro', true);
+    if(mpEstado.color && PALETAS[mpEstado.color]) setColor(mpEstado.color, true);
+    if(typeof mpEstado.fuente === 'number' && mpEstado.fuente !== 1) setFuente(mpEstado.fuente, null, true);
+    if(mpEstado.ligero) aplicarLigero(true);
+    if(typeof mpEstado.vasos === 'number') vasos = Math.max(0, Math.min(TOTAL_VASOS, mpEstado.vasos));
+    if(mpEstado.notasFecha === hoyFecha() && Array.isArray(mpEstado.notas)) notasComida = mpEstado.notas;
+    if(mpEstado.banoFecha === hoyFecha() && Array.isArray(mpEstado.bano)) registrosBano = mpEstado.bano;
+  }catch(e){}
+}
+
+/* ============================================================
+   INICIO · Frases motivacionales
+   ============================================================ */
+const FRASES = [
+  "Subir de peso con salud es construir cimientos, no relleno.",
+  "Cada bocado cuenta: hoy comes un poco más fuerte que ayer.",
+  "Tu cuerpo está aprendiendo a crecer; dale tiempo y constancia.",
+  "No competas con nadie más que contigo de ayer.",
+  "Las gráficas no mienten: tú sí estás avanzando.",
+  "Descansar también es entrenar. Duerme como quien crece.",
+  "Come, entrena, descansa. Repite. El resto llega solo.",
+  "Lo que hoy te cuesta, mañana será tu punto de partida.",
+  "Un kilo bien ganado es una victoria, no un error.",
+  "Eres constante, no perfecto. Y eso es lo que funciona.",
+  "Tu valor no está en la balanza, pero tu esfuerzo sí se nota.",
+  "Hoy hidrátate: la energía también se bebe.",
+  "Entrenar pesado es hablarle al futuro tú.",
+  "Cada sueño reparador es músculo en construcción.",
+  "Tus series de hoy son la fuerza de mañana.",
+  "Come con alegría; la culpa no aporta ni un gramo.",
+  "Confía en el proceso: los resultados llegan en silencio.",
+  "Platos pequeños, muchas veces: así se gana terreno.",
+  "El ritmo de nadie más define tu ritmo.",
+  "Progresar no es perfectar: es no parar.",
+  "Tu cuerpo responde a lo que haces cada día, no a una vez.",
+  "Un peso saludable se gana con hábitos, no con prisa.",
+  "Las piernas de hoy sostienen los sueños de mañana.",
+  "Si hoy pudiste más que ayer, ya ganaste.",
+  "La disciplina es elegirte a ti cada mañana.",
+  "Roma no se construyó en un día, pero nadie dijo que no empezara.",
+  "Tú no estás fuera de forma: estás en construcción.",
+  "Cocinar en casa es un acto de amor propio.",
+  "Respira, descansa, vuelve a intentarlo.",
+  "Ganar peso es ganar fuerza para vivir más."
+];
+let fraseIdx = 0;
+function nuevaFrase(){
+  const el = document.getElementById('fraseTexto');
+  let n; do { n = Math.floor(Math.random()*FRASES.length); } while(n===fraseIdx);
+  fraseIdx = n;
+  el.classList.add('swap');
+  setTimeout(()=>{ el.textContent = FRASES[n]; el.classList.remove('swap'); }, 260);
+}
+function compartirFrase(){
+  const txt = '"' + document.getElementById('fraseTexto').textContent + '" · MotivaPeso';
+  if(navigator.share){ navigator.share({text:txt}).catch(()=>{}); return; }
+  const ok = ()=>toast('Frase copiada ✓ pégala en WhatsApp ✉');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(ok).catch(()=>copiarLegacy(txt, ok));
+  } else copiarLegacy(txt, ok);
+}
+function copiarLegacy(txt, ok){
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); ok(); }catch(e){ toast('No se pudo copiar 😕'); }
+  ta.remove();
+}
+
+/* ============================================================
+   PESO · Gráfica SVG de progresión
+   ============================================================ */
+const DATOS_PESO = {
+  '4s' : { labels:['S5','S6','S7','S8'],            valores:[57.7,57.9,58.1,58.4] },
+  '8s' : { labels:['S1','S2','S3','S4','S5','S6','S7','S8'], valores:[56.8,57.1,57.0,57.4,57.7,57.9,58.1,58.4] },
+  '3m' : { labels:['Feb','','','Mar','','','Abr','','','May','','Jun'], valores:[55.9,56.1,56.4,56.6,56.8,57.1,57.0,57.4,57.7,57.9,58.1,58.4] }
+};
+let rango = '4s';
+
+function fmt(n){ return n.toFixed(1).replace('.',','); }
+
+function suavizar(pts){
+  let d = 'M'+pts[0].x.toFixed(1)+','+pts[0].y.toFixed(1);
+  for(let i=1;i<pts.length;i++){
+    const p0=pts[i-1], p1=pts[i], mx=(p0.x+p1.x)/2;
+    d += ' C'+mx.toFixed(1)+','+p0.y.toFixed(1)+' '+mx.toFixed(1)+','+p1.y.toFixed(1)+' '+p1.x.toFixed(1)+','+p1.y.toFixed(1);
+  }
+  return d;
+}
+
+function renderPeso(){
+  const datos = DATOS_PESO[rango];
+  const W=340,H=176, pl=38,pr=16,pt=18,pb=26;
+  const min=Math.min(...datos.valores)-0.6, max=Math.max(...datos.valores)+0.3;
+  const x = i => pl + i*(W-pl-pr)/(datos.valores.length-1);
+  const y = v => pt + (max-v)/(max-min)*(H-pt-pb);
+  const pts = datos.valores.map((v,i)=>({x:x(i),y:y(v)}));
+  const linea = suavizar(pts);
+  const area = linea + ' L'+pts[pts.length-1].x.toFixed(1)+','+(H-pb)+' L'+pts[0].x.toFixed(1)+','+(H-pb)+' Z';
+
+  // 3 líneas de guía con etiquetas
+  let grid='';
+  for(let g=0; g<3; g++){
+    const gv = min + (max-min)*(g/2.4) + 0.1;
+    const gy = y(gv);
+    grid += '<line x1="'+pl+'" y1="'+gy.toFixed(1)+'" x2="'+(W-pr)+'" y2="'+gy.toFixed(1)+'" stroke="var(--glass-border)" stroke-width="1" stroke-dasharray="4 5"/>'
+         +  '<text x="'+(pl-7)+'" y="'+(gy+4).toFixed(1)+'" text-anchor="end" font-size="10" font-weight="800" fill="var(--muted)">'+fmt(gv)+'</text>';
+  }
+  // Etiquetas del eje X
+  let xl='';
+  datos.labels.forEach((l,i)=>{ if(l) xl += '<text x="'+x(i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10" font-weight="800" fill="var(--muted)">'+l+'</text>'; });
+
+  const last = pts[pts.length-1];
+  const svg =
+  '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Gráfica de progresión de peso">'+
+    '<defs>'+
+      '<linearGradient id="gArea" x1="0" y1="0" x2="0" y2="1">'+
+        '<stop offset="0%" stop-color="var(--line-chart)" stop-opacity=".38"/>'+
+        '<stop offset="100%" stop-color="var(--line-chart)" stop-opacity="0"/>'+
+      '</linearGradient>'+
+      '<linearGradient id="gLine" x1="0" y1="0" x2="1" y2="0">'+
+        '<stop offset="0%" stop-color="var(--line-chart2)"/>'+
+        '<stop offset="100%" stop-color="var(--line-chart)"/>'+
+      '</linearGradient>'+
+    '</defs>'+
+    grid + xl +
+    '<path d="'+area+'" fill="url(#gArea)"/>'+
+    '<path class="anim-linea" d="'+linea+'" fill="none" stroke="url(#gLine)" stroke-width="3.6" stroke-linecap="round"/>'+
+    pts.map((p,i)=> i===pts.length-1 ? '' : '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3.4" fill="#fff" stroke="var(--line-chart)" stroke-width="2.4"/>').join('')+
+    '<circle cx="'+last.x.toFixed(1)+'" cy="'+last.y.toFixed(1)+'" r="6" fill="var(--line-chart)" stroke="#fff" stroke-width="3"/>'+
+    '<g transform="translate('+(last.x-56).toFixed(1)+','+(last.y-30).toFixed(1)+')">'+
+      '<rect width="52" height="23" rx="11.5" fill="var(--line-chart)"/>'+
+      '<text x="26" y="16" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">'+fmt(datos.valores[datos.valores.length-1])+' kg</text>'+
+    '</g>'+
+  '</svg>';
+
+  const wrap = document.getElementById('chartPeso');
+  wrap.innerHTML = svg;
+  // Animación de trazado (se salta en modo ligero)
+  const path = wrap.querySelector('.anim-linea');
+  if(document.body.classList.contains('ligero')){
+    path.style.strokeDasharray = 'none';
+    path.style.strokeDashoffset = 0;
+  } else {
+    const largo = path.getTotalLength();
+    path.style.strokeDasharray = largo;
+    path.style.strokeDashoffset = largo;
+    path.getBoundingClientRect();
+    path.style.transition = 'stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)';
+    path.style.strokeDashoffset = 0;
+  }
+}
+function rangoPeso(r, btn){
+  rango = r;
+  document.querySelectorAll('#segPeso button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderPeso();
+}
+
+/* Registrar un nuevo peso (simulado) */
+function registrarPeso(){
+  const actual = parseFloat(document.getElementById('pesoActual').textContent.replace(',','.'));
+  const nuevo = Math.round((actual + 0.1 + Math.random()*0.3)*10)/10;
+  document.getElementById('pesoActual').innerHTML = fmt(nuevo)+'<small> kg</small>';
+
+  // Actualiza el último punto de la gráfica actual
+  const arr = DATOS_PESO[rango].valores;
+  arr[arr.length-1] = nuevo;
+  renderPeso();
+
+  // Añade fila al historial
+  const hist = document.getElementById('historial');
+  const delta = Math.round((nuevo-actual)*10)/10;
+  const fila = document.createElement('div');
+  fila.className='hist-row';
+  fila.innerHTML = '<div><div class="d">Hoy · ahora</div><div class="dt">Registro manual</div></div>'+
+    '<div style="text-align:right"><div class="w">'+fmt(nuevo)+' <small>kg</small></div>'+
+    '<div class="dw '+(delta>=0?'up':'down')+'">'+(delta>=0?'▲ +':'▼ −')+fmt(Math.abs(delta))+'</div></div>';
+  hist.prepend(fila);
+
+  // Anillo de meta
+  const meta = parseFloat(document.getElementById('metaSlider').value);
+  const desde = 54.8;
+  const pct = Math.max(0, Math.min(100, Math.round((nuevo-desde)/(meta-desde)*100)));
+  document.getElementById('gaugeTxt').innerHTML = pct+'%<small>meta</small>';
+  document.querySelector('.gauge circle:nth-child(2)').setAttribute('stroke-dashoffset', (201-201*pct/100).toFixed(0));
+
+  toast('Peso registrado: '+fmt(nuevo)+' kg ⚖️');
+}
+
+/* ============================================================
+   CARGAS · Tus rutinas reales (Fuerza A miércoles / Fuerza B viernes)
+   ============================================================ */
+const RUTINAS = {
+  A:{ dia:'Miércoles', tot:25, ej:[
+    { nombre:'Sentadilla',          series:[1.6,1.6,2.0,2.0,2.2,2.2], pr:2.2, delta:'+0,6 kg en 6 semanas', obj:'3 × 10-12' },
+    { nombre:'Puente de glúteos',   series:[1.6,1.6,1.6,2.0,2.2,2.2], pr:2.2, delta:'+0,6 kg en 6 semanas', obj:'3 × 15' },
+    { nombre:'Remo',                series:[1.6,1.6,2.0,2.0,2.2,2.2], pr:2.2, delta:'+0,6 kg en 6 semanas', obj:'3 × 10-12 por brazo' },
+    { nombre:'Curl de bíceps',      series:[1.6,1.6,1.6,2.0,2.0,2.2], pr:2.2, delta:'+0,6 kg en 6 semanas', obj:'3 × 10-12 por brazo' },
+    { nombre:'Extensión de tríceps',series:[1.6,2.0,2.0,2.2,2.2,2.2], pr:2.2, delta:'+0,6 kg en 6 semanas', obj:'3 × 10-12 (ambas manos)' },
+    { nombre:'Press militar',       series:[1.0,1.0,1.6,1.6,1.6,1.6], pr:1.6, delta:'+0,6 kg en 6 semanas', obj:'2 × 10 · si duele, fuera' }
+  ]},
+  B:{ dia:'Viernes', tot:23, ej:[
+    { nombre:'Sentadilla',          series:[1.6,1.6,2.0,2.0,2.2,2.2], pr:2.2, delta:'+0,6 kg en 6 semanas', obj:'3 × 12' },
+    { nombre:'Puente de glúteos',   series:[1.6,1.6,1.6,2.0,2.2,2.2], pr:2.2, delta:'+0,6 kg en 6 semanas', obj:'3 × 15' },
+    { nombre:'Sentadilla con pausa',series:[1.0,1.0,1.6,1.6,2.0,2.0], pr:2.0, delta:'+1,0 kg en 6 semanas', obj:'2 × 8-10 (pausa 2 seg)' },
+    { nombre:'Remo',                series:[1.6,1.6,2.0,2.0,2.2,2.2], pr:2.2, delta:'+0,6 kg en 6 semanas', obj:'3 × 12 por brazo' },
+    { nombre:'Curl martillo',       series:[1.0,1.0,1.6,1.6,1.6,1.6], pr:1.6, delta:'+0,6 kg en 6 semanas', obj:'2 × 12-15 por brazo' },
+    { nombre:'Extensión de tríceps',series:[1.6,2.0,2.0,2.2,2.2,2.2], pr:2.2, delta:'+0,6 kg en 6 semanas', obj:'3 × 10-12 (ambas manos)' },
+    { nombre:'Press militar',       series:[1.0,1.0,1.6,1.6,1.6,1.6], pr:1.6, delta:'+0,6 kg en 6 semanas', obj:'2 × 8-10 · si duele, fuera' }
+  ]}
+};
+let rutinaSel = 'A', ejIdx = 0;
+
+/* Al abrir, muestra la rutina del día (miércoles→A, viernes→B, resto→A) */
+function initRutina(){
+  const d = new Date().getDay();
+  rutinaSel = (d===5) ? 'B' : 'A';
+  document.querySelectorAll('#segCarga button').forEach(b=>b.classList.toggle('on', b.dataset.v===rutinaSel));
+  initEj();
+}
+function selRutina(r, btn){
+  rutinaSel = r; ejIdx = 0;
+  document.querySelectorAll('#segCarga button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  initEj();
+}
+function initEj(){
+  const ej = RUTINAS[rutinaSel].ej;
+  document.getElementById('chipsEj').innerHTML = ej.map((e,i)=>
+    '<button class="ej-chip'+(i===0?' on':'')+'" onclick="selEjercicio(this,'+i+')">'+e.nombre+'</button>').join('');
+  document.getElementById('statSeries').textContent = RUTINAS[rutinaSel].tot;
+  document.getElementById('statEj').textContent = ej.length;
+  selEjercicio(document.querySelector('#chipsEj .ej-chip'), 0);
+}
+function selEjercicio(btn, i){
+  ejIdx = i;
+  document.querySelectorAll('#chipsEj .ej-chip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const ej = RUTINAS[rutinaSel].ej[i];
+  document.getElementById('prNum').innerHTML = fmt(ej.pr)+'<small> kg</small>';
+  document.getElementById('prDelta').textContent = '▲ '+ej.delta;
+  document.getElementById('objTxt').textContent = 'Objetivo: '+ej.obj;
+  renderCargas();
+}
+
+function renderCargas(){
+  const ej = RUTINAS[rutinaSel].ej[ejIdx];
+  const vals = ej.series;
+  const W=340,H=176, pl=34,pr=12,pt=22,pb=26;
+  const max = Math.max(...vals)*1.18;
+  const dec = max < 5; // con pesos ligeros usamos 1 decimal en el eje
+  const n = vals.length;
+  const slot = (W-pl-pr)/n;
+  const bw = Math.min(34, slot*0.56);
+
+  let grid='';
+  for(let g=0; g<3; g++){
+    const gv = max*(g/2.5);
+    const gy = pt + (max-gv)/max*(H-pt-pb);
+    grid += '<line x1="'+pl+'" y1="'+gy.toFixed(1)+'" x2="'+(W-pr)+'" y2="'+gy.toFixed(1)+'" stroke="var(--glass-border)" stroke-width="1" stroke-dasharray="4 5"/>'
+         +  '<text x="'+(pl-7)+'" y="'+(gy+4).toFixed(1)+'" text-anchor="end" font-size="10" font-weight="800" fill="var(--muted)">'+(dec?fmt(gv):Math.round(gv))+'</text>';
+  }
+
+  let barras='';
+  vals.forEach((v,i)=>{
+    const cx = pl + slot*i + slot/2;
+    const bh = v/max*(H-pt-pb);
+    const by = H-pb-bh;
+    const esUltimo = i===n-1;
+    barras += '<rect class="barra" x="'+(cx-bw/2).toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw+'" height="'+bh.toFixed(1)+'" rx="9" '+
+      'fill="'+(esUltimo?'var(--line-chart)':'var(--line-chart2)')+'" opacity="'+(esUltimo?'1':'.55')+'" style="transform-origin:center '+(H-pb)+'px;animation:barraIn .55s '+(i*0.07)+'s cubic-bezier(.3,1.3,.5,1) both"/>'+
+      '<text x="'+cx.toFixed(1)+'" y="'+(by-7).toFixed(1)+'" text-anchor="middle" font-size="10.5" font-weight="900" fill="'+(esUltimo?'var(--line-chart)':'var(--muted)')+'">'+fmt(v)+'</text>'+
+      '<text x="'+cx.toFixed(1)+'" y="'+(H-7)+'" text-anchor="middle" font-size="9.5" font-weight="800" fill="var(--muted)">S'+(i+1)+'</text>';
+  });
+
+  document.getElementById('chartCargas').innerHTML =
+    '<svg viewBox="0 0 '+W+' '+H+'">'+
+    '<style>@keyframes barraIn{from{transform:scaleY(0)}}.barra{animation-fill-mode:both}</style>'+
+    grid + barras + '</svg>';
+}
+
+/* ============================================================
+   AGUA · Vasos y nivel
+   ============================================================ */
+let vasos = 5;
+const TOTAL_VASOS = 8;
+
+function pintarAgua(){
+  const cont = document.getElementById('vasos');
+  cont.innerHTML='';
+  for(let i=0;i<TOTAL_VASOS;i++){
+    const b=document.createElement('button');
+    b.className='glass-dot'+(i<vasos?' full':'');
+    b.onclick=()=>{ vasos = (i+1===vasos) ? i : i+1; pintarAgua(); };
+    cont.appendChild(b);
+  }
+  const ml = vasos*250;
+  document.getElementById('aguaMl').textContent = ml.toLocaleString('es-ES');
+  document.getElementById('vasosTxt').textContent = vasos+' de '+TOTAL_VASOS+' vasos';
+  document.getElementById('aguaBarra').style.width = (vasos/TOTAL_VASOS*100)+'%';
+  // Nivel del vaso SVG (250px de alto: 100 = vacío, -150 = lleno)
+  document.getElementById('waterG').style.transform = 'translateY('+(250 - vasos/TOTAL_VASOS*250).toFixed(0)+'px)';
+  // Mini tarjeta de inicio
+  document.getElementById('miniAgua').innerHTML = ml.toLocaleString('es-ES')+' <small>/ 2.000 ml</small>';
+  document.getElementById('miniAguaSub').textContent = vasos+' de '+TOTAL_VASOS+' vasos';
+  mpSet('vasos', vasos);
+}
+function sumarVaso(){ if(vasos<TOTAL_VASOS){ vasos++; pintarAgua(); toast('¡+'+250+' ml! 💧 '+ (TOTAL_VASOS-vasos>0 ? 'quedan '+(TOTAL_VASOS-vasos)+' vasos' : '¡objetivo cumplido! 🎉')); } else { toast('¡Objetivo diario cumplido! 🎉💧'); } }
+function quitarVaso(){ if(vasos>0){ vasos--; pintarAgua(); toast('Vaso retirado'); } }
+
+/* ============================================================
+   HORARIO · Checklist y campanas
+   ============================================================ */
+function toggleEvento(card){
+  card.classList.toggle('done');
+  const hechos = document.querySelectorAll('#timeline .tl-card.done').length;
+  const total = document.querySelectorAll('#timeline .tl-card').length;
+  document.getElementById('horarioChip').textContent = '✅ '+hechos+' de '+total;
+  if(hechos===total) toast('¡Día completo! 🎉🏆');
+}
+function toggleBell(btn){
+  btn.classList.toggle('off');
+  btn.textContent = btn.classList.contains('off') ? '🔕' : '🔔';
+  toast(btn.classList.contains('off') ? 'Aviso silenciado 🔕' : 'Aviso activado 🔔');
+}
+
+/* ============================================================
+   HORARIO · Vista UNIVERSIDAD
+   Tus horarios reales: Ciberseguridad (Lun-Vie) y
+   Criminalística (Mie-Dom). Si cambias de turno o materias,
+   solo toca editar el objeto CARRERAS.
+   ============================================================ */
+const NOMBRE_DIA = {lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado',dom:'Domingo'};
+// 0=dom, 1=lun … 6=sáb
+function hoyKey(){ return ['dom','lun','mar','mie','jue','vie','sab'][new Date().getDay()]; }
+function aMinutos(h){ return parseInt(h.slice(0,2))*60 + parseInt(h.slice(3)); }
+
+const CARRERAS = {
+  ciber:{
+    nombre:'Ciberseguridad',
+    dias:['lun','mar','mie','jue','vie'],
+    // [clave de color, nombre completo, nombre corto para la tabla]
+    leyenda:[
+      ['estad','Estadística y Prob.','ESTA. Y PROB.'],
+      ['embe','Sistemas Embebidos','SIST. EMBEBI'],
+      ['ciber','Ciberseguridad','CIBERSEGURIDAD'],
+      ['cripto','Criptografía','CRIPTOGRAFÍA'],
+      ['web','Desarrollo Web','DESARROLLO WEB']
+    ],
+    // filas: 'inicio-fin' → celda por día [clave, detalle(aula/tipo)]
+    filas:[
+      {h:'12:00-12:45', c:{ mar:['estad','Aula 213'] }},
+      {h:'12:50-13:35', c:{ lun:['embe','Aula 2A4'], mar:['estad','Aula 213 · Lab'], jue:['estad','Aula 2A4'] }},
+      {h:'13:40-14:25', c:{ lun:['embe','Aula 2A4 · Lab'], mar:['estad','Aula 213 · Lab'], jue:['estad','Aula 2A4'] }},
+      {h:'14:30-15:15', c:{ lun:['embe','Aula 2A4 · Lab'], mar:['ciber','Aula 2A4 · Lab'], mie:['embe','Aula 2A4'], jue:['ciber','Aula 2A4 · Lab'] }},
+      {h:'15:20-16:05', c:{ lun:['ciber','Aula 2A4'], mar:['ciber','Aula 2A4 · Lab'], mie:['embe','Aula 2A4'], jue:['ciber','Aula 2A4 · Lab'] }},
+      {h:'16:10-16:55', c:{ lun:['web','Aula 2A4'], mar:['cripto','Aula 213'], mie:['cripto','Aula 213 · Lab'], jue:['web','Aula 211 · Lab'] }},
+      {h:'17:00-17:45', c:{ lun:['web','Aula 2A4'], mar:['cripto','Aula 213'], mie:['cripto','Aula 213 · Lab'], jue:['web','Aula 211 · Lab'] }},
+      {h:'17:50-18:35', c:{ mie:['cripto','Aula 213 · Lab'], jue:['web','Aula 211 · Lab'] }}
+    ]
+  },
+  crimi:{
+    nombre:'Criminalística',
+    dias:['mie','jue','vie','sab','dom'],
+    leyenda:[
+      ['i402b','ICS 402B','ICS 402B'],
+      ['i405','ICS 405','ICS 405'],
+      ['med401','MED 401','MED 401'],
+      ['med402','MED 402','MED 402'],
+      ['i404','ICS 404','ICS 404'],
+      ['i406','ICS 406','ICS 406'],
+      ['der401','DER 401','DER 401']
+    ],
+    filas:[
+      {h:'07:00-07:45', c:{ dom:['i402b','P (a)'] }},
+      {h:'07:50-08:35', c:{ dom:['i402b','P (a)'] }},
+      {h:'10:25-11:10', c:{ dom:['i405','P (a)'] }},
+      {h:'11:15-12:00', c:{ dom:['i405','P (a)'] }},
+      {h:'12:10-12:55', c:{ dom:['med401','P (a)'] }},
+      {h:'13:00-13:45', c:{ sab:['i404','P (a)'], dom:['med401','P (a)'] }},
+      {h:'13:50-14:35', c:{ sab:['i404','P (a)'] }},
+      {h:'14:40-15:25', c:{ sab:['med402','P (a)'] }},
+      {h:'15:30-16:15', c:{ sab:['med402','P (a)'] }},
+      {h:'16:20-17:05', c:{ sab:['der401','P (a)'] }},
+      {h:'17:10-17:55', c:{ mie:['i406','T'], vie:['med402','T'], sab:['der401','P (a)'] }},
+      {h:'18:00-18:45', c:{ mie:['i406','T'], vie:['med402','T'] }},
+      {h:'18:50-19:35', c:{ mie:['med401','T'], jue:['i402b','T'], vie:['i406','L (a)'] }},
+      {h:'19:40-20:25', c:{ mie:['med401','T'], jue:['i402b','T'], vie:['i406','L (a)'] }},
+      {h:'20:30-21:15', c:{ mie:['der401','T'], jue:['i405','T'], vie:['i404','T'] }},
+      {h:'21:20-22:05', c:{ mie:['der401','T'], jue:['i405','T'], vie:['i404','T'] }}
+    ]
+  }
+};
+
+let carreraSel = 'ciber';
+
+/* Cambia entre Rutina / Universidad (btn puede ser null si se llama desde otro botón) */
+function vistaHorario(v, btn){
+  if(!btn) btn = document.querySelector('#segHor button[data-v="'+v+'"]');
+  document.getElementById('vistaRutina').style.display = v==='rutina' ? 'block' : 'none';
+  document.getElementById('vistaUni').style.display      = v==='uni' ? 'block' : 'none';
+  document.querySelectorAll('#segHor button').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  document.getElementById('contenido').scrollTop = 0;
+  if(v==='uni') renderUni();
+}
+
+function selCarrera(btn, k){
+  carreraSel = k;
+  document.querySelectorAll('#chipsCarrera .ej-chip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderUni();
+}
+function cortoDe(k){ const l = CARRERAS[carreraSel].leyenda.find(x=>x[0]===k); return l ? l[2] : k; }
+function fullDe(k){ const l = CARRERAS[carreraSel].leyenda.find(x=>x[0]===k); return l ? l[1] : k; }
+
+function renderUni(){
+  const car = CARRERAS[carreraSel];
+  const hoy = hoyKey();
+  const esHoy = car.dias.includes(hoy);
+  const ahora = new Date().getHours()*60 + new Date().getMinutes();
+
+  document.getElementById('uniInfo').innerHTML =
+    '<span>Grupo <b>2S3121</b></span><span>·</span><span>Nivel <b>II Año</b></span><span>·</span><span>Turno <b>Diurno</b></span>';
+
+  // ----- Clases de hoy -----
+  let items = [];
+  if(esHoy){
+    car.filas.forEach(f=>{ const cel = f.c[hoy]; if(cel) items.push({h:f.h, k:cel[0], sub:cel[1]}); });
+  }
+  let vistoProx = false, html = '';
+  items.forEach(it=>{
+    const ini = aMinutos(it.h.slice(0,5)), fin = aMinutos(it.h.slice(6));
+    let badge = '', clase = '';
+    if(ini<=ahora && ahora<fin){ clase=' now'; badge='<span class="uni-badge hot">Ahora</span>'; }
+    else if(!vistoProx && ini>ahora){ vistoProx=true; badge='<span class="uni-badge">Próxima</span>'; }
+    else if(fin<=ahora){ clase=' done'; }
+    html += '<div class="uni-row'+clase+'">'+
+      '<div class="uni-time">'+it.h.slice(0,5)+'<small>→ '+it.h.slice(6)+'</small></div>'+
+      '<div class="uni-txt"><b>'+fullDe(it.k)+'</b><span>📍 '+it.sub+'</span></div>'+
+      (badge || '<button class="bell-btn" onclick="toggleBell(this)">🔔</button>')+
+    '</div>';
+  });
+  if(!items.length){
+    const orden = ['lun','mar','mie','jue','vie','sab','dom'];
+    let proxDia = null;
+    for(let i=1;i<=7;i++){
+      const d2 = orden[(orden.indexOf(hoy)+i)%7];
+      if(car.dias.includes(d2)){ proxDia = d2; break; }
+    }
+    html = '<div class="card" style="text-align:center;padding:26px 18px"><div style="font-size:38px;margin-bottom:8px">🎉</div>'+
+      '<b style="font-size:16px">Hoy sin clases de '+car.nombre+'</b>'+
+      '<div style="font-size:13.5px;color:var(--muted);font-weight:700;margin-top:4px">'+(proxDia ? 'Próxima clase: '+NOMBRE_DIA[proxDia] : '¡A descansar!')+'</div></div>';
+  }
+  document.getElementById('listaUni').innerHTML = html;
+
+  // ----- Resumen -----
+  const n = items.length;
+  document.getElementById('uniResumen').textContent =
+    esHoy ? (n ? 'Hoy: '+n+(n===1?' clase':' clases') : 'Hoy sin clases')
+          : 'Hoy no hay clases de '+car.nombre;
+  const pend = items.filter(it=>aMinutos(it.h.slice(0,5))>ahora);
+  document.getElementById('uniProxima').textContent = n
+    ? (pend.length ? 'Próxima: '+fullDe(pend[0].k)+' · '+pend[0].h.slice(0,5) : 'Ya terminaste tus clases 🎓')
+    : 'Disfruta el día libre ✨';
+
+  // ----- Tabla semanal -----
+  const cols = car.dias;
+  const abr = {lun:'Lun',mar:'Mar',mie:'Mié',jue:'Jue',vie:'Vie',sab:'Sáb',dom:'Dom'};
+  let tabla = '<table class="uni-tabla"><thead><tr><th>Hora</th>'+cols.map(d=>'<th>'+abr[d]+'</th>').join('')+'</tr></thead><tbody>';
+  car.filas.forEach(f=>{
+    tabla += '<tr><td class="hr">'+f.h+'</td>'+cols.map(d=>{
+      const cel = f.c[d];
+      if(!cel) return '<td></td>';
+      return '<td><span class="celda mc-'+cel[0]+'"><b>'+cortoDe(cel[0])+'</b><small>'+cel[1]+'</small></span></td>';
+    }).join('')+'</tr>';
+  });
+  tabla += '</tbody></table>';
+  document.getElementById('tablaUni').innerHTML = tabla;
+
+  // ----- Leyenda y resumen -----
+  document.getElementById('leyendaUni').innerHTML =
+    car.leyenda.map(l=>'<span class="celda mc-'+l[0]+'">'+l[2]+'</span>').join('');
+  let celdas = 0;
+  car.filas.forEach(f=>cols.forEach(d=>{ if(f.c[d]) celdas++; }));
+  document.getElementById('uniMaterias').textContent = car.leyenda.length;
+  document.getElementById('uniHoras').textContent = Math.round(celdas*0.75);
+  document.getElementById('uniDias').textContent = cols.length;
+}
+
+/* ============================================================
+   AJUSTES · Interruptores, meta, tema, color, letra, modo ligero
+   ============================================================ */
+function toggleSw(el, nombre){
+  el.classList.toggle('on');
+  toast(nombre + (el.classList.contains('on') ? ' activado ✅' : ' desactivado ⭕'));
+}
+function moverMeta(v){
+  const nv = parseFloat(v);
+  document.getElementById('metaVal').textContent = String(nv).replace('.',',');
+  document.getElementById('chipMeta').textContent = String(nv).replace('.',',');
+  const falta = nv - 58.4;
+  document.getElementById('metaFalta').textContent =
+    falta > 0.05 ? 'Faltan '+falta.toFixed(1).replace('.',',')+' kg' : '¡Meta alcanzada! 💪';
+}
+
+/* ----- Tema claro/oscuro (también desde la luna de la cabecera) ----- */
+function setTema(t, silencioso){
+  document.documentElement.setAttribute('data-tema', t);
+  document.getElementById('temaClaro').classList.toggle('on', t==='claro');
+  document.getElementById('temaOscuro').classList.toggle('on', t==='oscuro');
+  const q = document.getElementById('btnTemaQuick');
+  if(q) q.textContent = t==='claro' ? '🌙' : '☀️';
+  renderPeso(); renderCargas();
+  mpSet('tema', t);
+  if(!silencioso) toast(t==='claro' ? 'Tema claro ☀️' : 'Modo nocturno 🌙');
+}
+function temaRapido(){
+  setTema(document.documentElement.getAttribute('data-tema')==='claro' ? 'oscuro' : 'claro');
+}
+
+/* ----- Color de la app (cambia todas las variables de un golpe) ----- */
+const PALETAS = {
+  coral:  {p:'#FF7A45', p2:'#FF9F6E', l2:'#FFB35C'},
+  rosa:   {p:'#F43F5E', p2:'#FF7A8A', l2:'#FF9AA8'},
+  ambar:  {p:'#F59E0B', p2:'#FBBF24', l2:'#FCD34D'},
+  verde:  {p:'#10B981', p2:'#34D399', l2:'#6EE7B7'},
+  azul:   {p:'#3B82F6', p2:'#60A5FA', l2:'#93C5FD'},
+  violeta:{p:'#8B5CF6', p2:'#A78BFA', l2:'#C4B5FD'}
+};
+function hexRgba(hex, a){
+  const n = parseInt(hex.slice(1), 16);
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+function setColor(key, silencioso){
+  const c = PALETAS[key];
+  const r = document.documentElement.style;
+  r.setProperty('--primary', c.p);
+  r.setProperty('--primary2', c.p2);
+  r.setProperty('--primary-soft', hexRgba(c.p, .14));
+  r.setProperty('--line-chart', c.p);
+  r.setProperty('--line-chart2', c.l2);
+  document.querySelectorAll('#paletaBtns .sw-color').forEach(b=>b.classList.toggle('on', b.dataset.c===key));
+  mpSet('color', key);
+  if(!silencioso) toast('Color de la app actualizado 🎨');
+}
+
+/* ----- Tamaño de letra (zoom suave de toda la interfaz) ----- */
+function setFuente(z, btn, silencioso){
+  document.querySelector('.app').style.zoom = z;
+  if(btn){
+    document.querySelectorAll('#segFuente button').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  } else {
+    const mapa = {'0.9':0, '1':1, '1.12':2};
+    const i = mapa[String(z)];
+    if(i !== undefined) document.querySelectorAll('#segFuente button').forEach((b,j)=>b.classList.toggle('on', j===i));
+  }
+  mpSet('fuente', z);
+  if(!silencioso) toast(z<1 ? 'Letra pequeña' : z>1 ? 'Letra grande' : 'Letra normal');
+}
+
+/* ----- Modo ligero: quita blur y animaciones para que vaya al máximo ----- */
+function aplicarLigero(on){
+  document.body.classList.toggle('ligero', on);
+  const sw = document.getElementById('swLigero');
+  if(sw) sw.classList.toggle('on', on);
+}
+function toggleLigero(el){
+  const activo = !el.classList.contains('on');
+  aplicarLigero(activo);
+  mpSet('ligero', activo);
+  toast(activo ? 'Modo ligero activado 🪶' : 'Animaciones restauradas ✨');
+}
+
+/* ============================================================
+   INICIO · Saludo, próxima clase y registro rápido
+   ============================================================ */
+const NOM_DIA = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+function actualizarGreet(){
+  const d = new Date(), h = d.getHours();
+  const sal = h<12 ? '¡Buenos días!' : h<19 ? '¡Buenas tardes!' : '¡Buenas noches!';
+  document.getElementById('greetTit').textContent = sal+' 👋';
+  const extra = d.getDay()===3 ? 'Miércoles · hoy toca Fuerza A 💪'
+              : d.getDay()===5 ? 'Viernes · hoy toca Fuerza B 💪' : '';
+  document.getElementById('greetSub').textContent = extra || 'Listo para ganar terreno hoy';
+}
+function fmtHora(min){
+  return String(Math.floor(min/60)).padStart(2,'0')+':'+String(min%60).padStart(2,'0');
+}
+/* Busca la próxima clase del día en AMBAS carreras */
+function actualizarProximaClase(){
+  const hoy = hoyKey();
+  const ahora = new Date().getHours()*60 + new Date().getMinutes();
+  let mejor = null;
+  ['ciber','crimi'].forEach(key=>{
+    const car = CARRERAS[key];
+    if(!car.dias.includes(hoy)) return;
+    car.filas.forEach(f=>{
+      const cel = f.c[hoy]; if(!cel) return;
+      const ini = aMinutos(f.h.slice(0,5));
+      if(ini>ahora && (!mejor || ini<mejor.ini)){
+        const l = car.leyenda.find(x=>x[0]===cel[0]);
+        mejor = {ini, n:l?l[1]:cel[0], sub:cel[1]};
+      }
+    });
+  });
+  const v = document.getElementById('miniClaseVal'), s = document.getElementById('miniClaseSub');
+  if(mejor){
+    v.innerHTML = fmtHora(mejor.ini)+' <small>h</small>';
+    s.textContent = '📚 '+mejor.n;
+  }else{
+    v.innerHTML = '🎉 <small>libre</small>';
+    s.textContent = 'Sin más clases hoy';
+  }
+}
+function irNota(){
+  go('peso');
+  setTimeout(()=>document.getElementById('notaComida').focus(), 450);
+}
+
+/* ----- Notas de comida ----- */
+let notasComida = [];
+function guardarNota(){
+  const ta = document.getElementById('notaComida');
+  const txt = ta.value.trim();
+  if(!txt){ ta.focus(); toast('Escribe qué comiste primero 🍽️'); return; }
+  const d = new Date();
+  notasComida.unshift({t:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'), txt});
+  ta.value = '';
+  guardarNotasEstado();
+  renderNotas();
+  toast('Nota guardada 🍽️');
+}
+function renderNotas(){
+  const el = document.getElementById('listaNotas');
+  if(!notasComida.length){
+    el.innerHTML = '<div class="vacio">Sin notas todavía · apunta lo que comes 💪</div>';
+    return;
+  }
+  el.innerHTML = notasComida.map(n=>
+    '<div class="nota-row"><div class="nt">'+n.txt.replace(/</g,'&lt;')+'</div><span class="nh">'+n.t+'</span></div>').join('');
+}
+
+/* ----- Registro de baño (orina / evacuación) ----- */
+let registrosBano = [];
+
+/* Hoja inferior: se abre desde Inicio en 1 toque, registra en 2 */
+function abrirSheetBano(){ document.getElementById('sheetBano').classList.add('show'); }
+function cerrarSheetBano(){
+  document.getElementById('sheetBano').classList.remove('show');
+  document.getElementById('notaSheetBano').value = '';
+}
+function notaSheet(txt){ document.getElementById('notaSheetBano').value = txt; }
+function guardarSheetBano(tipo){
+  const inp = document.getElementById('notaSheetBano');
+  const nota = inp.value.trim();
+  const d = new Date();
+  const hora = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  registrosBano.unshift({t:hora, tipo, nota});
+  inp.value = '';
+  guardarBanoEstado();
+  renderBano();
+  cerrarSheetBano();
+  toast((tipo==='Orina'?'💧 Orina':'💩 Evacuación')+' registrada · '+hora+(nota?' · '+nota:''));
+}
+/* Atajo desde Inicio: abrir la hoja (irBano queda por si quieres ir a la tarjeta) */
+function irBano(){ abrirSheetBano(); }
+function registrarBano(tipo){
+  const inp = document.getElementById('notaBano');
+  /* Solo usa la nota de Peso si esa pantalla está visible (evita consumir texto ajeno) */
+  const visible = !!inp && inp.offsetParent !== null;
+  const nota = visible ? inp.value.trim() : '';
+  const d = new Date();
+  registrosBano.unshift({
+    t:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'),
+    tipo, nota
+  });
+  if(visible) inp.value = '';
+  guardarBanoEstado();
+  renderBano();
+  toast(tipo==='Orina' ? 'Orina registrada 💧' : 'Evacuación registrada 💩');
+}
+function renderBano(){
+  document.getElementById('banoChip').textContent = registrosBano.length+' hoy';
+  document.getElementById('banoChipTop').textContent = registrosBano.length+' hoy';
+  document.getElementById('statHoyBano').textContent = registrosBano.length;
+  const demo = datosBanoDemo();
+  const sem = demo.reduce((a,p)=>a+p[0]+p[1],0);
+  document.getElementById('statSemBano').textContent = sem;
+  document.getElementById('statProBano').textContent = (sem/7).toFixed(1);
+  const filas = registrosBano.length
+    ? registrosBano.map((b,i)=>
+        '<div class="nota-row"><div class="nt">'+b.tipo+
+        (b.nota ? ' <span style="color:var(--muted);font-weight:600">- '+b.nota.replace(/</g,'&lt;')+'</span>' : '')+
+        '</div><span style="display:flex;align-items:center;gap:6px"><span class="nh">'+b.t+'</span>'+
+        '<button class="del-x" onclick="borrarBano('+i+')" title="Borrar">✕</button></span></div>').join('')
+    : '<div class="vacio">Sin registros hoy · toca un botón para registrar 🚽</div>';
+  document.getElementById('listaBano').innerHTML = filas;
+  document.getElementById('listaBanoHist').innerHTML = filas;
+  pintarBanoChart();
+}
+/* Datos de la semana: 6 días de muestra + hoy real (en la app: historial guardado) */
+function datosBanoDemo(){
+  const base = [[3,1],[2,1],[4,2],[3,0],[2,1],[3,1]];
+  const hoy = [
+    registrosBano.filter(r=>r.tipo==='Orina').length,
+    registrosBano.filter(r=>r.tipo==='Evacuación').length
+  ];
+  return base.concat([hoy]);
+}
+function pintarBanoChart(){
+  const NOM = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const dias = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    dias.push(NOM[d.getDay()]);
+  }
+  const datos = datosBanoDemo();
+  const max = Math.max(...datos.map(p=>p[0]+p[1]), 2);
+  const chart = document.getElementById('banoChart');
+  chart.innerHTML = datos.map((p,i)=>{
+    const val = p[0]+p[1];
+    const hOrina = (p[0]/max)*100, hEvac = (p[1]/max)*100;
+    return '<div class="bcol" title="'+dias[i]+': '+val+' registro'+(val===1?'':'s')+'">'+
+      '<div class="bstack">'+
+        (p[1] ? '<div class="bseg evac" data-h="'+hEvac+'" style="height:0"></div>' : '')+
+        (p[0] ? '<div class="bseg orina" data-h="'+hOrina+'" style="height:0"></div>' : '')+
+      '</div><span>'+dias[i]+'</span></div>';
+  }).join('');
+  requestAnimationFrame(()=>chart.querySelectorAll('.bseg').forEach(s=>s.style.height=s.dataset.h+'%'));
+}
+function borrarBano(i){
+  registrosBano.splice(i,1);
+  renderBano();
+  toast('Registro eliminado 🗑️');
+}
+
+/* ----- Exportar datos (descarga real de archivos .txt) ----- */
+function descargar(nombre, contenido){
+  const blob = new Blob([contenido], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 800);
+}
+function hoyFecha(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function exportarHoy(){
+  const t = [];
+  t.push('MOTIVAPESO · Bitácora del día');
+  t.push('Fecha: '+hoyFecha());
+  t.push('------------------------------------------');
+  t.push('');
+  t.push('PESO');
+  t.push('  Actual: '+document.getElementById('pesoActual').textContent);
+  t.push('  Meta: '+document.getElementById('metaVal').textContent+' kg');
+  const p = DATOS_PESO['8s'];
+  p.valores.forEach((v,i)=>t.push('  '+p.labels[i]+': '+fmt(v)+' kg'));
+  t.push('');
+  t.push('AGUA ('+(vasos*250)+' ml de 2000 ml)');
+  t.push('  Vasos: '+vasos+' de '+TOTAL_VASOS);
+  t.push('');
+  t.push('NOTAS DE COMIDA ('+notasComida.length+')');
+  if(notasComida.length) notasComida.forEach(n=>t.push('  '+n.t+'  '+n.txt));
+  else t.push('  Sin notas.');
+  t.push('');
+  t.push('BAÑO ('+registrosBano.length+')');
+  if(registrosBano.length) registrosBano.forEach(b=>t.push('  '+b.t+'  '+b.tipo+(b.nota?' ('+b.nota+')':'')));
+  else t.push('  Sin registros.');
+  t.push('');
+  t.push('RUTINA ACTIVA: Fuerza '+rutinaSel+' ('+RUTINAS[rutinaSel].dia+')');
+  RUTINAS[rutinaSel].ej.forEach(e=>t.push('  '+e.nombre+' - objetivo '+e.obj+' · récord '+fmt(e.pr)+' kg'));
+  t.push('');
+  descargar('motivapeso_'+hoyFecha()+'.txt', t.join('\n'));
+  toast('Bitácora de hoy descargada 📤');
+}
+function exportarTodo(){
+  const t = [];
+  t.push('MOTIVAPESO · Historial completo');
+  t.push('Exportado: '+new Date().toLocaleString('es-ES'));
+  t.push('==========================================');
+  t.push('');
+  ['3m','8s'].forEach(r=>{
+    t.push('PESO · '+r.toUpperCase());
+    const p = DATOS_PESO[r];
+    p.valores.forEach((v,i)=>t.push('  '+(p.labels[i]||'·')+': '+fmt(v)+' kg'));
+    t.push('');
+  });
+  t.push('RUTINA FUERZA A (miércoles · '+RUTINAS.A.tot+' series)');
+  RUTINAS.A.ej.forEach(e=>t.push('  '+e.nombre+' - '+e.obj+' · récord '+fmt(e.pr)+' kg'));
+  t.push('');
+  t.push('RUTINA FUERZA B (viernes · '+RUTINAS.B.tot+' series)');
+  RUTINAS.B.ej.forEach(e=>t.push('  '+e.nombre+' - '+e.obj+' · récord '+fmt(e.pr)+' kg'));
+  t.push('');
+  t.push('AGUA: '+(vasos*250)+' ml registrado hoy');
+  t.push('NOTAS DE COMIDA: '+notasComida.length);
+  notasComida.forEach(n=>t.push('  '+n.t+'  '+n.txt));
+  t.push('BAÑO: '+registrosBano.length);
+  registrosBano.forEach(b=>t.push('  '+b.t+'  '+b.tipo+(b.nota?' ('+b.nota+')':'')));
+  t.push('');
+  descargar('motivapeso_historial.txt', t.join('\n'));
+  toast('Historial completo descargado 📤');
+}
+
+/* ============================================================
+   HORARIO · Rutina del día (Fuerza A / Fuerza B según el día)
+   ============================================================ */
+function ajustarRutina(){
+  const d = new Date().getDay();
+  document.getElementById('tituloDia').textContent = 'Hoy · '+NOM_DIA[d];
+  document.getElementById('gymTit').textContent =
+    d===3 ? 'Entrenamiento · Fuerza A' : d===5 ? 'Entrenamiento · Fuerza B' : 'Entrenamiento';
+  document.getElementById('gymSub').textContent =
+    d===3 ? 'Rutina A · piernas, espalda y brazos' :
+    d===5 ? 'Rutina B · piernas, espalda y brazos' : 'Día sin rutina fija · completa a tu ritmo';
+}
+
+/* ---------- Restablecer datos del día ---------- */
+function restablecerTodo(btn){
+  if(btn.dataset.confirm !== '1'){
+    btn.dataset.confirm = '1';
+    btn.textContent = '¿Segura? Toca otra vez';
+    setTimeout(()=>{ btn.dataset.confirm = ''; btn.textContent = 'Borrar'; }, 3000);
+    return;
+  }
+  registrosBano = [];
+  notasComida = [];
+  vasos = 0;
+  try{ localStorage.removeItem(MP_KEY); }catch(e){}
+  mpEstado = {};
+  renderBano();
+  renderNotas();
+  pintarAgua();
+  btn.dataset.confirm = '';
+  btn.textContent = 'Borrar';
+  toast('Datos del día borrados 🗑️');
+}
+
+/* ---------- Arranque ---------- */
+cargarEstado();
+renderPeso();
+pintarAgua();
+renderNotas();
+renderBano();
+ajustarRutina();
+initRutina();
+actualizarGreet();
+actualizarProximaClase();
+</script>
+</body>
+</html>
