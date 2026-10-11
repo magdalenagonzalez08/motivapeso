@@ -1,6 +1,6 @@
 # MotivaPeso
 
-[![Descargar APK](https://img.shields.io/badge/Descargar-APK%20v1.0-FF7A45?style=for-the-badge&logo=android)](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)
+[![Descargar APK](https://img.shields.io/badge/Descargar-APK%20v2.0-FF7A45?style=for-the-badge&logo=android)](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)
 ![Android 10+](https://img.shields.io/badge/Android-10%2B-3DDC84?style=flat-square&logo=android)
 ![Tamaño](https://img.shields.io/badge/tamaño-~3%20MB-lightgrey?style=flat-square)
 ![Acción](https://img.shields.io/github/actions/workflow/status/magdalenagonzalez08/motivapeso/build-apk.yml?branch=main&style=flat-square)
@@ -16,12 +16,13 @@ La interfaz es una página HTML que metí dentro de una app Android bien liviana
 
 ## Bajarla
 
-**[Descargar MotivaPeso v1.0](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)**
+**[Descargar MotivaPeso v2.0](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)**
 
 Ábrela en el celular y dale a instalar. Si el teléfono avisa que es una app de fuente desconocida, es normal: no está en Play Store. Dale a "instalar de todos modos" y listo.
 
 ## Qué tiene
 
+- Arranca vacío a propósito: sin datos inventados, todo sale de lo que tú registras
 - Primera vez que la abres: te pregunta tu peso actual, tu peso inicial y tu meta (todo editable después en Ajustes → Mis datos)
 - Frases motivacionales para cuando se cae la constancia
 - Gráfica del peso con anillo de progreso hacia tu meta

@@ -500,8 +500,8 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         <div class="mini-grid">
           <div class="mini" onclick="go('peso')" style="cursor:pointer">
             <div class="lab">Peso actual</div>
-            <div class="val">58,4 <small>kg</small></div>
-            <div class="sub up">▲ +0,5 kg esta semana</div>
+            <div class="val" id="miniPesoVal">— <small>kg</small></div>
+            <div class="sub" id="miniPesoSub">Registra tu primer peso</div>
           </div>
           <div class="mini" onclick="go('agua')" style="cursor:pointer">
             <div class="lab">Agua de hoy</div>
@@ -541,15 +541,15 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         <div class="card hero-stat">
           <div>
             <span style="font-size:12.5px;font-weight:900;color:var(--muted);letter-spacing:.6px;text-transform:uppercase">Peso actual</span>
-            <div class="big-num" id="pesoActual">58,4<small> kg</small></div>
-            <span class="delta up" id="pesoDelta">▲ +0,5 kg esta semana</span>
+            <div class="big-num" id="pesoActual">—<small> kg</small></div>
+            <span class="delta" id="pesoDelta">Sin registros aún</span>
           </div>
           <div class="gauge">
             <svg width="76" height="76">
               <circle cx="38" cy="38" r="32" fill="none" stroke="var(--primary-soft)" stroke-width="8"/>
-              <circle cx="38" cy="38" r="32" fill="none" stroke="var(--primary)" stroke-width="8" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="78" style="transition:stroke-dashoffset .8s"/>
+              <circle cx="38" cy="38" r="32" fill="none" stroke="var(--primary)" stroke-width="8" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201" style="transition:stroke-dashoffset .8s"/>
             </svg>
-            <div class="g-txt" id="gaugeTxt">61%<small>meta</small></div>
+            <div class="g-txt" id="gaugeTxt">0%<small>meta</small></div>
           </div>
         </div>
 
@@ -571,11 +571,6 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         <!-- Historial -->
         <div class="section-title">Historial</div>
         <div class="card pad-sm" id="historial">
-          <div class="hist-row"><div><div class="d">Hoy</div><div class="dt">Martes · mañana</div></div><div style="text-align:right"><div class="w">58,4 <small>kg</small></div><div class="dw up">▲ +0,2</div></div></div>
-          <div class="hist-row"><div><div class="d">Ayer</div><div class="dt">Lunes · mañana</div></div><div style="text-align:right"><div class="w">58,2 <small>kg</small></div><div class="dw up">▲ +0,3</div></div></div>
-          <div class="hist-row"><div><div class="d">Domingo</div><div class="dt">Mañana</div></div><div style="text-align:right"><div class="w">57,9 <small>kg</small></div><div class="dw down">▼ −0,1</div></div></div>
-          <div class="hist-row"><div><div class="d">Sábado</div><div class="dt">Mañana</div></div><div style="text-align:right"><div class="w">58,0 <small>kg</small></div><div class="dw flat">- 0,0</div></div></div>
-          <div class="hist-row"><div><div class="d">Viernes</div><div class="dt">Mañana</div></div><div style="text-align:right"><div class="w">58,0 <small>kg</small></div><div class="dw up">▲ +0,3</div></div></div>
         </div>
 
         <!-- Notas de comida (de tu bitácora, con estilo nuevo) -->
@@ -892,12 +887,12 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         <div class="card pad-sm">
           <div style="font-size:12px;font-weight:900;color:var(--muted);letter-spacing:.4px">PESO ACTUAL (KG)</div>
           <div style="display:flex;gap:8px;margin-top:8px">
-            <input type="number" id="inpPeso" min="30" max="200" step="0.1" value="58.4">
+            <input type="number" id="inpPeso" min="30" max="200" step="0.1" placeholder="ej: 58,4">
             <button class="btn primary" style="flex-shrink:0;padding:10px 16px" onclick="guardarPesoActual()">Actualizar</button>
           </div>
           <div style="font-size:12px;font-weight:900;color:var(--muted);letter-spacing:.4px;margin-top:14px">PESO INICIAL (KG)</div>
           <div style="display:flex;gap:8px;margin-top:8px">
-            <input type="number" id="inpDesde" min="30" max="200" step="0.1" value="54.8">
+            <input type="number" id="inpDesde" min="30" max="200" step="0.1" placeholder="¿De dónde partiste?">
             <button class="btn glass" style="flex-shrink:0;padding:10px 16px" onclick="guardarDesde()">Actualizar</button>
           </div>
           <div style="font-size:12px;color:var(--muted);font-weight:700;margin-top:10px">Tu peso se guarda en este dispositivo. El horario y las rutinas vienen con tus datos de la uni.</div>
@@ -1019,7 +1014,7 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         <div style="font-size:11.5px;font-weight:900;color:var(--muted);letter-spacing:.4px;margin-top:10px">META (KG)</div>
         <input type="number" id="onbMeta" min="30" max="200" step="0.5" placeholder="¿A cuánto quieres llegar?">
         <button class="btn primary full" style="margin-top:16px" onclick="completarOnboarding()">¡Listo, a ganar terreno! 🚀</button>
-        <button class="btn glass full" style="margin-top:8px;border:0" onclick="completarOnboarding(true)">Usar los datos de ejemplo</button>
+        <button class="btn glass full" style="margin-top:8px;border:0" onclick="completarOnboarding(true)">Empezar vacío, luego lo lleno</button>
       </div>
     </div>
 
@@ -1133,12 +1128,11 @@ function cargarEstado(){
     if(typeof mpEstado.vasos === 'number') vasos = Math.max(0, Math.min(TOTAL_VASOS, mpEstado.vasos));
     if(mpEstado.notasFecha === hoyFecha() && Array.isArray(mpEstado.notas)) notasComida = mpEstado.notas;
     if(mpEstado.banoFecha === hoyFecha() && Array.isArray(mpEstado.bano)) registrosBano = mpEstado.bano;
-    if(typeof mpEstado.pesoActual === 'number') aplicarPeso(mpEstado.pesoActual, true);
+    if(Array.isArray(mpEstado.registrosPeso)) registrosPeso = mpEstado.registrosPeso.filter(r=>r && r.fecha && typeof r.peso === 'number');
     if(typeof mpEstado.pesoDesde === 'number') pesoDesde = mpEstado.pesoDesde;
-    const ip = document.getElementById('inpPeso');
-    if(ip && typeof mpEstado.pesoActual === 'number') ip.value = mpEstado.pesoActual.toFixed(1);
+    if(typeof mpEstado.meta === 'number'){ document.getElementById('metaSlider').value = mpEstado.meta; moverMeta(String(mpEstado.meta)); }
     const id2 = document.getElementById('inpDesde');
-    if(id2) id2.value = pesoDesde.toFixed(1);
+    if(id2 && pesoDesde > 0) id2.value = pesoDesde.toFixed(1);
     if(!mpEstado.onboarded && !location.search.includes('preview')) setTimeout(abrirOnboarding, 700);
   }catch(e){}
 }
@@ -1205,13 +1199,10 @@ function copiarLegacy(txt, ok){
 /* ============================================================
    PESO · Gráfica SVG de progresión
    ============================================================ */
-const DATOS_PESO = {
-  '4s' : { labels:['S5','S6','S7','S8'],            valores:[57.7,57.9,58.1,58.4] },
-  '8s' : { labels:['S1','S2','S3','S4','S5','S6','S7','S8'], valores:[56.8,57.1,57.0,57.4,57.7,57.9,58.1,58.4] },
-  '3m' : { labels:['Feb','','','Mar','','','Abr','','','May','','Jun'], valores:[55.9,56.1,56.4,56.6,56.8,57.1,57.0,57.4,57.7,57.9,58.1,58.4] }
-};
+/* Registro de pesos reales: [{fecha:'YYYY-MM-DD', peso:58.4}]. Vacío al inicio. */
+let registrosPeso = [];
 let rango = '4s';
-let pesoDesde = 54.8;
+let pesoDesde = 0;
 
 function fmt(n){ return n.toFixed(1).replace('.',','); }
 
@@ -1225,12 +1216,26 @@ function suavizar(pts){
 }
 
 function renderPeso(){
-  const datos = DATOS_PESO[rango];
+  const dias = rango==='4s' ? 28 : rango==='8s' ? 56 : 9999;
+  const limite = Date.now() - dias*86400000;
+  const regs = registrosPeso.filter(r=> new Date(r.fecha+'T12:00:00').getTime() >= limite);
+  const wrap0 = document.getElementById('chartPeso');
+  if(regs.length < 2){
+    wrap0.innerHTML = '<div style="text-align:center;padding:30px 12px;color:var(--muted);font-weight:800;font-size:13px;line-height:1.7">Aún no hay gráfica 📈<br>Registra tu peso dos días y aquí verás tu línea.</div>';
+    return;
+  }
+  const valores = regs.map(r=>r.peso);
+  const paso = Math.max(1, Math.floor(valores.length/4));
+  const labels = regs.map((r,i)=>{
+    if(i % paso !== 0 && i !== valores.length-1) return '';
+    const d = new Date(r.fecha+'T12:00:00');
+    return d.getDate()+'/'+(d.getMonth()+1);
+  });
   const W=340,H=176, pl=38,pr=16,pt=18,pb=26;
-  const min=Math.min(...datos.valores)-0.6, max=Math.max(...datos.valores)+0.3;
-  const x = i => pl + i*(W-pl-pr)/(datos.valores.length-1);
+  const min=Math.min(...valores)-0.6, max=Math.max(...valores)+0.3;
+  const x = i => pl + i*(W-pl-pr)/(valores.length-1);
   const y = v => pt + (max-v)/(max-min)*(H-pt-pb);
-  const pts = datos.valores.map((v,i)=>({x:x(i),y:y(v)}));
+  const pts = valores.map((v,i)=>({x:x(i),y:y(v)}));
   const linea = suavizar(pts);
   const area = linea + ' L'+pts[pts.length-1].x.toFixed(1)+','+(H-pb)+' L'+pts[0].x.toFixed(1)+','+(H-pb)+' Z';
 
@@ -1244,7 +1249,7 @@ function renderPeso(){
   }
   // Etiquetas del eje X
   let xl='';
-  datos.labels.forEach((l,i)=>{ if(l) xl += '<text x="'+x(i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10" font-weight="800" fill="var(--muted)">'+l+'</text>'; });
+  labels.forEach((l,i)=>{ if(l) xl += '<text x="'+x(i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10" font-weight="800" fill="var(--muted)">'+l+'</text>'; });
 
   const last = pts[pts.length-1];
   const svg =
@@ -1266,7 +1271,7 @@ function renderPeso(){
     '<circle cx="'+last.x.toFixed(1)+'" cy="'+last.y.toFixed(1)+'" r="6" fill="var(--line-chart)" stroke="#fff" stroke-width="3"/>'+
     '<g transform="translate('+(last.x-56).toFixed(1)+','+(last.y-30).toFixed(1)+')">'+
       '<rect width="52" height="23" rx="11.5" fill="var(--line-chart)"/>'+
-      '<text x="26" y="16" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">'+fmt(datos.valores[datos.valores.length-1])+' kg</text>'+
+      '<text x="26" y="16" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">'+fmt(valores[valores.length-1])+' kg</text>'+
     '</g>'+
   '</svg>';
 
@@ -1293,32 +1298,13 @@ function rangoPeso(r, btn){
   renderPeso();
 }
 
-/* Registrar un nuevo peso (simulado) */
+/* Registrar un nuevo peso de hoy */
 function registrarPeso(){
-  const actual = parseFloat(document.getElementById('pesoActual').textContent.replace(',','.'));
-  const nuevo = Math.round((actual + 0.1 + Math.random()*0.3)*10)/10;
-  document.getElementById('pesoActual').innerHTML = fmt(nuevo)+'<small> kg</small>';
-
-  // Actualiza el último punto de la gráfica actual
-  const arr = DATOS_PESO[rango].valores;
-  arr[arr.length-1] = nuevo;
-  renderPeso();
-
-  // Añade fila al historial
-  const hist = document.getElementById('historial');
-  const delta = Math.round((nuevo-actual)*10)/10;
-  const fila = document.createElement('div');
-  fila.className='hist-row';
-  fila.innerHTML = '<div><div class="d">Hoy · ahora</div><div class="dt">Registro manual</div></div>'+
-    '<div style="text-align:right"><div class="w">'+fmt(nuevo)+' <small>kg</small></div>'+
-    '<div class="dw '+(delta>=0?'up':'down')+'">'+(delta>=0?'▲ +':'▼ −')+fmt(Math.abs(delta))+'</div></div>';
-  hist.prepend(fila);
-
-  // Anillo de meta
-  mpSet('pesoActual', nuevo);
-  actualizarGauge();
-
-  toast('Peso registrado: '+fmt(nuevo)+' kg ⚖️');
+  const u = ultimoPeso();
+  const base = u !== null ? u : (pesoDesde || 55);
+  const nuevo = u === null ? base : Math.round((base + 0.1 + Math.random()*0.3)*10)/10;
+  registrarPesoEnFecha(hoyFecha(), nuevo);
+  toast(u === null ? '¡Primer peso registrado! 🌱' : 'Peso registrado: '+fmt(nuevo)+' kg ⚖️');
 }
 
 /* ============================================================
@@ -1416,7 +1402,7 @@ function renderCargas(){
 /* ============================================================
    AGUA · Vasos y nivel
    ============================================================ */
-let vasos = 5;
+let vasos = 0;
 const TOTAL_VASOS = 8;
 
 function pintarAgua(){
@@ -1633,32 +1619,92 @@ function moverMeta(v){
   const nv = parseFloat(v);
   document.getElementById('metaVal').textContent = String(nv).replace('.',',');
   document.getElementById('chipMeta').textContent = String(nv).replace('.',',');
-  const falta = nv - 58.4;
-  document.getElementById('metaFalta').textContent =
-    falta > 0.05 ? 'Faltan '+falta.toFixed(1).replace('.',',')+' kg' : '¡Meta alcanzada! 💪';
+  const u = ultimoPeso();
+  const base = u !== null ? u : pesoDesde;
+  const faltaEl = document.getElementById('metaFalta');
+  if(base <= 0){
+    faltaEl.textContent = 'Registra tu peso para ver cuánto falta';
+  } else {
+    const falta = nv - base;
+    faltaEl.textContent = falta > 0.05 ? 'Faltan '+falta.toFixed(1).replace('.',',')+' kg' : '¡Meta alcanzada! 💪';
+  }
+  mpSet('meta', nv);
   actualizarGauge();
 }
 
-/* ----- Peso propio: editar, anillo de meta y datos guardados ----- */
-function aplicarPeso(nuevo, silencioso){
-  document.getElementById('pesoActual').innerHTML = fmt(nuevo)+'<small> kg</small>';
-  ['4s','8s','3m'].forEach(r=>{ DATOS_PESO[r].valores[DATOS_PESO[r].valores.length-1] = nuevo; });
+/* ----- Peso: fuente única de datos ----- */
+function ultimoPeso(){ return registrosPeso.length ? registrosPeso[registrosPeso.length-1].peso : null; }
+function registrarPesoEnFecha(fecha, peso){
+  const existe = registrosPeso.find(r=>r.fecha===fecha);
+  if(existe) existe.peso = peso; else registrosPeso.push({fecha:fecha, peso:peso});
+  registrosPeso.sort((a,b)=> a.fecha < b.fecha ? -1 : 1);
+  mpSet('registrosPeso', registrosPeso);
+  mpSet('pesoActual', peso);
+  actualizarTodoPeso();
+}
+function actualizarTodoPeso(){
+  const u = ultimoPeso();
+  document.getElementById('pesoActual').innerHTML = (u === null ? '—' : fmt(u))+'<small> kg</small>';
+  pintarMiniPeso();
   renderPeso();
+  renderHistorial();
   actualizarGauge();
-  if(!silencioso){
-    const hist = document.getElementById('historial');
-    const fila = document.createElement('div');
-    fila.className = 'hist-row';
-    fila.innerHTML = '<div><div class="d">Hoy · ajuste</div><div class="dt">Peso actual editado</div></div>'+
-      '<div style="text-align:right"><div class="w">'+fmt(nuevo)+' <small>kg</small></div></div>';
-    hist.prepend(fila);
+  const ip = document.getElementById('inpPeso');
+  if(ip && u !== null) ip.value = u.toFixed(1);
+}
+function pintarMiniPeso(){
+  const val = document.getElementById('miniPesoVal');
+  const sub = document.getElementById('miniPesoSub');
+  const delta = document.getElementById('pesoDelta');
+  const u = ultimoPeso();
+  if(u === null){
+    val.innerHTML = '— <small>kg</small>';
+    sub.className = 'sub';
+    sub.textContent = 'Registra tu primer peso';
+    delta.className = 'delta';
+    delta.textContent = 'Sin registros aún';
+    return;
   }
+  const prev = registrosPeso.length > 1 ? registrosPeso[registrosPeso.length-2].peso : null;
+  const d = prev === null ? null : Math.round((u - prev)*10)/10;
+  let txt = 'Primer registro 🌱';
+  if(d !== null) txt = d > 0 ? '▲ +'+fmt(d)+' kg' : d < 0 ? '▼ −'+fmt(Math.abs(d))+' kg' : '- sin cambios';
+  sub.className = 'sub'+(d > 0 ? ' up' : '');
+  sub.textContent = d === null ? 'Tu línea empieza hoy' : txt+' desde el último';
+  delta.className = 'delta'+(d > 0 ? ' up' : d < 0 ? ' down' : '');
+  delta.textContent = d === null ? 'Primer registro 🌱' : txt+' desde el último registro';
+}
+function renderHistorial(){
+  const hist = document.getElementById('historial');
+  if(!registrosPeso.length){
+    hist.innerHTML = '<div style="text-align:center;color:var(--muted);font-weight:800;font-size:13px;padding:12px">Todavía sin registros. Tus pesos aparecerán aquí. ⚖️</div>';
+    return;
+  }
+  const NOMD = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const rev = registrosPeso.slice().reverse();
+  hist.innerHTML = rev.map((r,i)=>{
+    const prev = rev[i+1];
+    const d = prev ? Math.round((r.peso - prev.peso)*10)/10 : null;
+    let sub;
+    if(d === null) sub = '<div class="dw flat">🌱 inicio</div>';
+    else sub = '<div class="dw '+(d > 0 ? 'up' : d < 0 ? 'down' : 'flat')+'">'+(d > 0 ? '▲ +' : d < 0 ? '▼ −' : '- ')+fmt(Math.abs(d))+'</div>';
+    const dt = new Date(r.fecha+'T12:00:00');
+    const nombre = r.fecha === hoyFecha() ? 'Hoy' : NOMD[dt.getDay()];
+    return '<div class="hist-row"><div><div class="d">'+nombre+'</div><div class="dt">'+dt.getDate()+'/'+(dt.getMonth()+1)+'</div></div>'+
+      '<div style="text-align:right"><div class="w">'+fmt(r.peso)+' <small>kg</small></div>'+sub+'</div></div>';
+  }).join('');
+}
+function aplicarPeso(nuevo, silencioso){
+  registrarPesoEnFecha(hoyFecha(), nuevo);
 }
 function actualizarGauge(){
-  const actual = parseFloat(document.getElementById('pesoActual').textContent.replace(',','.'));
+  const actual = ultimoPeso();
   const meta = parseFloat(document.getElementById('metaSlider').value);
-  const escala = Math.max(0.1, meta - pesoDesde);
-  const pct = Math.max(0, Math.min(100, Math.round((actual - pesoDesde) / escala * 100)));
+  let pct = 0;
+  if(actual !== null && pesoDesde > 0){
+    const escala = Math.max(0.1, meta - pesoDesde);
+    pct = Math.max(0, Math.min(100, Math.round((actual - pesoDesde) / escala * 100)));
+  }
   document.getElementById('gaugeTxt').innerHTML = pct+'%<small>meta</small>';
   document.querySelector('.gauge circle:nth-child(2)').setAttribute('stroke-dashoffset', (201 - 201*pct/100).toFixed(0));
 }
@@ -1697,7 +1743,7 @@ function completarOnboarding(saltar){
     if(isNaN(p) || p < 30 || p > 200){ toast('Pone tu peso actual (30 a 200 kg)'); return; }
     if(isNaN(d)) d = p;
     if(isNaN(m)) m = Math.round((p + 4) * 2) / 2;
-    aplicarPeso(p, true);
+    registrarPesoEnFecha(hoyFecha(), p);
     pesoDesde = d;
     document.getElementById('metaSlider').value = m;
     moverMeta(String(m));
@@ -1708,7 +1754,7 @@ function completarOnboarding(saltar){
   }
   mpSet('onboarded', true);
   cerrarOnboarding();
-  toast(saltar ? 'Usando los datos de ejemplo 🌱' : '¡Vamos! Tu plan ya está listo 🚀');
+  toast(saltar ? 'Sin datos aún, ve registrando 💧' : '¡Vamos! Tu plan ya está listo 🚀');
 }
 
 /* ----- Última vez: agua y entreno/correr ----- */
@@ -1928,7 +1974,7 @@ function renderBano(){
   document.getElementById('banoChip').textContent = registrosBano.length+' hoy';
   document.getElementById('banoChipTop').textContent = registrosBano.length+' hoy';
   document.getElementById('statHoyBano').textContent = registrosBano.length;
-  const demo = datosBanoDemo();
+  const demo = datosBano7d();
   const sem = demo.reduce((a,p)=>a+p[0]+p[1],0);
   document.getElementById('statSemBano').textContent = sem;
   document.getElementById('statProBano').textContent = (sem/7).toFixed(1);
@@ -1943,14 +1989,11 @@ function renderBano(){
   document.getElementById('listaBanoHist').innerHTML = filas;
   pintarBanoChart();
 }
-/* Datos de la semana: 6 días de muestra + hoy real (en la app: historial guardado) */
-function datosBanoDemo(){
-  const base = [[3,1],[2,1],[4,2],[3,0],[2,1],[3,1]];
-  const hoy = [
-    registrosBano.filter(r=>r.tipo==='Orina').length,
-    registrosBano.filter(r=>r.tipo==='Evacuación').length
-  ];
-  return base.concat([hoy]);
+/* Datos de la semana: solo registros reales (hoy viene de la bitácora del día) */
+function datosBano7d(){
+  const hoyO = registrosBano.filter(r=>r.tipo==='Orina').length;
+  const hoyE = registrosBano.filter(r=>r.tipo==='Evacuación').length;
+  return [[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[hoyO,hoyE]];
 }
 function pintarBanoChart(){
   const NOM = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -1959,9 +2002,13 @@ function pintarBanoChart(){
     const d = new Date(); d.setDate(d.getDate()-i);
     dias.push(NOM[d.getDay()]);
   }
-  const datos = datosBanoDemo();
-  const max = Math.max(...datos.map(p=>p[0]+p[1]), 2);
+  const datos = datosBano7d();
   const chart = document.getElementById('banoChart');
+  if(datos.every(p=>p[0]+p[1]===0)){
+    chart.innerHTML = '<div style="width:100%;text-align:center;color:var(--muted);font-weight:800;font-size:13px;align-self:center">Sin registros esta semana 🚿</div>';
+    return;
+  }
+  const max = Math.max(...datos.map(p=>p[0]+p[1]), 2);
   chart.innerHTML = datos.map((p,i)=>{
     const val = p[0]+p[1];
     const hOrina = (p[0]/max)*100, hEvac = (p[1]/max)*100;
@@ -2006,8 +2053,8 @@ function exportarHoy(){
   t.push('PESO');
   t.push('  Actual: '+document.getElementById('pesoActual').textContent);
   t.push('  Meta: '+document.getElementById('metaVal').textContent+' kg');
-  const p = DATOS_PESO['8s'];
-  p.valores.forEach((v,i)=>t.push('  '+p.labels[i]+': '+fmt(v)+' kg'));
+  if(registrosPeso.length) registrosPeso.forEach(r=>t.push('  '+r.fecha+': '+fmt(r.peso)+' kg'));
+  else t.push('  Sin registros todavía.');
   t.push('');
   t.push('AGUA ('+(vasos*250)+' ml de 2000 ml)');
   t.push('  Vasos: '+vasos+' de '+TOTAL_VASOS);
@@ -2032,12 +2079,10 @@ function exportarTodo(){
   t.push('Exportado: '+new Date().toLocaleString('es-ES'));
   t.push('==========================================');
   t.push('');
-  ['3m','8s'].forEach(r=>{
-    t.push('PESO · '+r.toUpperCase());
-    const p = DATOS_PESO[r];
-    p.valores.forEach((v,i)=>t.push('  '+(p.labels[i]||'·')+': '+fmt(v)+' kg'));
-    t.push('');
-  });
+  t.push('PESO · HISTORIAL ('+registrosPeso.length+' registros)');
+  if(registrosPeso.length) registrosPeso.forEach(r=>t.push('  '+r.fecha+': '+fmt(r.peso)+' kg'));
+  else t.push('  Sin registros todavía.');
+  t.push('');
   t.push('RUTINA FUERZA A (miércoles · '+RUTINAS.A.tot+' series)');
   RUTINAS.A.ej.forEach(e=>t.push('  '+e.nombre+' - '+e.obj+' · récord '+fmt(e.pr)+' kg'));
   t.push('');
@@ -2075,11 +2120,20 @@ function restablecerTodo(btn){
     setTimeout(()=>{ btn.dataset.confirm = ''; btn.textContent = 'Borrar'; }, 3000);
     return;
   }
+  registrosPeso = [];
+  pesoDesde = 0;
   registrosBano = [];
   notasComida = [];
   vasos = 0;
   try{ localStorage.removeItem(MP_KEY); }catch(e){}
   mpEstado = {};
+  document.getElementById('metaSlider').value = 62;
+  moverMeta('62');
+  const ip = document.getElementById('inpPeso');
+  if(ip) ip.value = '';
+  const id2 = document.getElementById('inpDesde');
+  if(id2) id2.value = '';
+  actualizarTodoPeso();
   renderBano();
   renderNotas();
   pintarAgua();
@@ -2090,7 +2144,7 @@ function restablecerTodo(btn){
 
 /* ---------- Arranque ---------- */
 cargarEstado();
-renderPeso();
+actualizarTodoPeso();
 pintarAgua();
 mostrarUltimaAgua();
 pintarUltimoEntreno();
