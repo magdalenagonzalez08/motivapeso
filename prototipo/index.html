@@ -1126,8 +1126,12 @@ function cargarEstado(){
     if(typeof mpEstado.fuente === 'number' && mpEstado.fuente !== 1) setFuente(mpEstado.fuente, null, true);
     if(mpEstado.ligero) aplicarLigero(true);
     if(typeof mpEstado.vasos === 'number') vasos = Math.max(0, Math.min(TOTAL_VASOS, mpEstado.vasos));
-    if(mpEstado.notasFecha === hoyFecha() && Array.isArray(mpEstado.notas)) notasComida = mpEstado.notas;
-    if(mpEstado.banoFecha === hoyFecha() && Array.isArray(mpEstado.bano)) registrosBano = mpEstado.bano;
+    // Comidas: cargar todas (con fecha), filtrar hoy para mostrar
+    if(Array.isArray(mpEstado.notas)) notasComida = mpEstado.notas.filter(n=>n && n.fecha);
+    // Baño: cargar todos (con fecha), filtrar hoy para mostrar
+    if(Array.isArray(mpEstado.bano)) registrosBano = mpEstado.bano.filter(b=>b && b.fecha);
+    // Agua: historial por fecha
+    if(Array.isArray(mpEstado.aguaHist)) aguaHist = mpEstado.aguaHist.filter(a=>a && a.fecha);
     if(Array.isArray(mpEstado.registrosPeso)) registrosPeso = mpEstado.registrosPeso.filter(r=>r && r.fecha && typeof r.peso === 'number');
     if(typeof mpEstado.pesoDesde === 'number') pesoDesde = mpEstado.pesoDesde;
     if(typeof mpEstado.meta === 'number'){ document.getElementById('metaSlider').value = mpEstado.meta; moverMeta(String(mpEstado.meta)); }
@@ -1404,6 +1408,7 @@ function renderCargas(){
    ============================================================ */
 let vasos = 0;
 const TOTAL_VASOS = 8;
+let aguaHist = [];
 
 function pintarAgua(){
   const cont = document.getElementById('vasos');
@@ -1418,12 +1423,16 @@ function pintarAgua(){
   document.getElementById('aguaMl').textContent = ml.toLocaleString('es-ES');
   document.getElementById('vasosTxt').textContent = vasos+' de '+TOTAL_VASOS+' vasos';
   document.getElementById('aguaBarra').style.width = (vasos/TOTAL_VASOS*100)+'%';
-  // Nivel del vaso SVG (250px de alto: 100 = vacío, -150 = lleno)
   document.getElementById('waterG').style.transform = 'translateY('+(250 - vasos/TOTAL_VASOS*250).toFixed(0)+'px)';
-  // Mini tarjeta de inicio
   document.getElementById('miniAgua').innerHTML = ml.toLocaleString('es-ES')+' <small>/ 2.000 ml</small>';
   document.getElementById('miniAguaSub').textContent = vasos+' de '+TOTAL_VASOS+' vasos';
   mpSet('vasos', vasos);
+  // Guardar historial por fecha
+  const f = hoyFecha();
+  const idx = aguaHist.findIndex(a=>a.fecha===f);
+  if(idx>=0) aguaHist[idx].vasos = vasos; else aguaHist.push({fecha:f, vasos});
+  aguaHist = aguaHist.slice(-30);
+  mpSet('aguaHist', aguaHist);
 }
 function sumarVaso(){ if(vasos<TOTAL_VASOS){ vasos++; marcarAgua(); pintarAgua(); toast('¡+'+250+' ml! 💧 '+ (TOTAL_VASOS-vasos>0 ? 'quedan '+(TOTAL_VASOS-vasos)+' vasos' : '¡objetivo cumplido! 🎉')); } else { toast('¡Objetivo diario cumplido! 🎉💧'); } }
 function quitarVaso(){ if(vasos>0){ vasos--; pintarAgua(); toast('Vaso retirado'); } }
@@ -1915,7 +1924,7 @@ function guardarNota(){
   const txt = ta.value.trim();
   if(!txt){ ta.focus(); toast('Escribe qué comiste primero 🍽️'); return; }
   const d = new Date();
-  notasComida.unshift({t:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'), txt});
+  notasComida.unshift({fecha:hoyFecha(), t:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'), txt});
   ta.value = '';
   guardarNotasEstado();
   renderNotas();
@@ -1923,11 +1932,12 @@ function guardarNota(){
 }
 function renderNotas(){
   const el = document.getElementById('listaNotas');
-  if(!notasComida.length){
+  const hoy = notasComida.filter(n=>n.fecha===hoyFecha());
+  if(!hoy.length){
     el.innerHTML = '<div class="vacio">Sin notas todavía · apunta lo que comes 💪</div>';
     return;
   }
-  el.innerHTML = notasComida.map(n=>
+  el.innerHTML = hoy.map(n=>
     '<div class="nota-row"><div class="nt">'+n.txt.replace(/</g,'&lt;')+'</div><span class="nh">'+n.t+'</span></div>').join('');
 }
 
@@ -1946,7 +1956,7 @@ function guardarSheetBano(tipo){
   const nota = inp.value.trim();
   const d = new Date();
   const hora = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-  registrosBano.unshift({t:hora, tipo, nota});
+  registrosBano.unshift({fecha:hoyFecha(), t:hora, tipo, nota});
   inp.value = '';
   guardarBanoEstado();
   renderBano();
@@ -1957,11 +1967,11 @@ function guardarSheetBano(tipo){
 function irBano(){ abrirSheetBano(); }
 function registrarBano(tipo){
   const inp = document.getElementById('notaBano');
-  /* Solo usa la nota de Peso si esa pantalla está visible (evita consumir texto ajeno) */
   const visible = !!inp && inp.offsetParent !== null;
   const nota = visible ? inp.value.trim() : '';
   const d = new Date();
   registrosBano.unshift({
+    fecha: hoyFecha(),
     t:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'),
     tipo, nota
   });
@@ -1971,15 +1981,16 @@ function registrarBano(tipo){
   toast(tipo==='Orina' ? 'Orina registrada 💧' : 'Evacuación registrada 💩');
 }
 function renderBano(){
-  document.getElementById('banoChip').textContent = registrosBano.length+' hoy';
-  document.getElementById('banoChipTop').textContent = registrosBano.length+' hoy';
-  document.getElementById('statHoyBano').textContent = registrosBano.length;
+  const hoy = registrosBano.filter(b=>b.fecha===hoyFecha());
+  document.getElementById('banoChip').textContent = hoy.length+' hoy';
+  document.getElementById('banoChipTop').textContent = hoy.length+' hoy';
+  document.getElementById('statHoyBano').textContent = hoy.length;
   const demo = datosBano7d();
   const sem = demo.reduce((a,p)=>a+p[0]+p[1],0);
   document.getElementById('statSemBano').textContent = sem;
   document.getElementById('statProBano').textContent = (sem/7).toFixed(1);
-  const filas = registrosBano.length
-    ? registrosBano.map((b,i)=>
+  const filas = hoy.length
+    ? hoy.map((b,i)=>
         '<div class="nota-row"><div class="nt">'+b.tipo+
         (b.nota ? ' <span style="color:var(--muted);font-weight:600">- '+b.nota.replace(/</g,'&lt;')+'</span>' : '')+
         '</div><span style="display:flex;align-items:center;gap:6px"><span class="nh">'+b.t+'</span>'+
@@ -1989,11 +2000,19 @@ function renderBano(){
   document.getElementById('listaBanoHist').innerHTML = filas;
   pintarBanoChart();
 }
-/* Datos de la semana: solo registros reales (hoy viene de la bitácora del día) */
+/* Datos de la semana: registros reales por fecha */
 function datosBano7d(){
-  const hoyO = registrosBano.filter(r=>r.tipo==='Orina').length;
-  const hoyE = registrosBano.filter(r=>r.tipo==='Evacuación').length;
-  return [[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[hoyO,hoyE]];
+  const res = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const f = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const dia = registrosBano.filter(r=>r.fecha===f);
+    res.push([
+      dia.filter(r=>r.tipo==='Orina').length,
+      dia.filter(r=>r.tipo==='Evacuación').length
+    ]);
+  }
+  return res;
 }
 function pintarBanoChart(){
   const NOM = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -2021,7 +2040,12 @@ function pintarBanoChart(){
   requestAnimationFrame(()=>chart.querySelectorAll('.bseg').forEach(s=>s.style.height=s.dataset.h+'%'));
 }
 function borrarBano(i){
-  registrosBano.splice(i,1);
+  const hoy = registrosBano.filter(b=>b.fecha===hoyFecha());
+  const target = hoy[i];
+  if(!target) return;
+  const idx = registrosBano.indexOf(target);
+  if(idx>=0) registrosBano.splice(idx,1);
+  guardarBanoEstado();
   renderBano();
   toast('Registro eliminado 🗑️');
 }
@@ -2055,11 +2079,11 @@ function exportarHoy(){
   t.push('  Vasos: '+vasos+' de '+TOTAL_VASOS);
   t.push('');
   t.push('NOTAS DE COMIDA ('+notasComida.length+')');
-  if(notasComida.length) notasComida.forEach(n=>t.push('  '+n.t+'  '+n.txt));
+  if(notasComida.length) notasComida.forEach(n=>t.push('  '+(n.fecha||'')+' '+n.t+'  '+n.txt));
   else t.push('  Sin notas.');
   t.push('');
   t.push('BAÑO ('+registrosBano.length+')');
-  if(registrosBano.length) registrosBano.forEach(b=>t.push('  '+b.t+'  '+b.tipo+(b.nota?' ('+b.nota+')':'')));
+  if(registrosBano.length) registrosBano.forEach(b=>t.push('  '+(b.fecha||'')+' '+b.t+'  '+b.tipo+(b.nota?' ('+b.nota+')':'')));
   else t.push('  Sin registros.');
   t.push('');
   t.push('RUTINA ACTIVA: Fuerza '+rutinaSel+' ('+RUTINAS[rutinaSel].dia+')');
@@ -2085,10 +2109,13 @@ function exportarTodo(){
   RUTINAS.B.ej.forEach(e=>t.push('  '+e.nombre+' - '+e.obj+' · récord '+fmt(e.pr)+' kg'));
   t.push('');
   t.push('AGUA: '+(vasos*250)+' ml registrado hoy');
-  t.push('NOTAS DE COMIDA: '+notasComida.length);
-  notasComida.forEach(n=>t.push('  '+n.t+'  '+n.txt));
-  t.push('BAÑO: '+registrosBano.length);
-  registrosBano.forEach(b=>t.push('  '+b.t+'  '+b.tipo+(b.nota?' ('+b.nota+')':'')));
+  t.push('AGUA · HISTORIAL ('+aguaHist.length+' días)');
+  aguaHist.forEach(a=>t.push('  '+a.fecha+': '+a.vasos+' vasos ('+(a.vasos*250)+' ml)'));
+  t.push('');
+  t.push('NOTAS DE COMIDA ('+notasComida.length+')');
+  notasComida.forEach(n=>t.push('  '+(n.fecha||'')+' '+n.t+'  '+n.txt));
+  t.push('BAÑO ('+registrosBano.length+')');
+  registrosBano.forEach(b=>t.push('  '+(b.fecha||'')+' '+b.t+'  '+b.tipo+(b.nota?' ('+b.nota+')':'')));
   t.push('');
   descargar('motivapeso_historial.txt', t.join('\n'));
   toast('Historial completo descargado 📤');
