@@ -1119,8 +1119,16 @@ function toast(msg){
 const MP_KEY = 'motivapeso_v1';
 let mpEstado = {};
 try{ mpEstado = JSON.parse(localStorage.getItem(MP_KEY) || '{}'); }catch(e){ mpEstado = {}; }
-function guardarEstado(){ try{ localStorage.setItem(MP_KEY, JSON.stringify(mpEstado)); }catch(e){} }
+let _mpDirty = false, _mpTimer = null;
+function guardarEstado(){ _mpDirty = true; if(!_mpTimer) _mpTimer = setTimeout(_mpFlush, 300); }
+function _mpFlush(){
+  _mpTimer = null;
+  if(!_mpDirty) return;
+  _mpDirty = false;
+  try{ localStorage.setItem(MP_KEY, JSON.stringify(mpEstado)); }catch(e){}
+}
 function mpSet(k, v){ mpEstado[k] = v; guardarEstado(); }
+function mpFlush(){ if(_mpTimer){ clearTimeout(_mpTimer); _mpTimer=null; } _mpDirty=true; _mpFlush(); }
 function guardarBanoEstado(){ mpSet('bano', registrosBano); mpSet('banoFecha', hoyFecha()); }
 function guardarNotasEstado(){ mpSet('notas', notasComida); mpSet('notasFecha', hoyFecha()); }
 function cargarEstado(){
@@ -1980,8 +1988,19 @@ function renderNotas(){
     el.innerHTML = '<div class="vacio">Sin notas todavía · apunta lo que comes 💪</div>';
     return;
   }
-  el.innerHTML = hoy.map(n=>
-    '<div class="nota-row"><div class="nt">'+n.txt.replace(/</g,'&lt;')+'</div><span class="nh">'+n.t+'</span></div>').join('');
+  el.innerHTML = hoy.map((n,i)=>
+    '<div class="nota-row"><div class="nt">'+n.txt.replace(/</g,'&lt;')+'</div><span style="display:flex;align-items:center;gap:6px"><span class="nh">'+n.t+'</span>'+
+    '<button class="del-x" onclick="borrarNota('+i+')" title="Borrar" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✕</button></span></div>').join('');
+}
+function borrarNota(i){
+  const hoy = notasComida.filter(n=>n.fecha===hoyFecha());
+  const target = hoy[i];
+  if(!target) return;
+  const idx = notasComida.indexOf(target);
+  if(idx>=0) notasComida.splice(idx,1);
+  guardarNotasEstado();
+  renderNotas();
+  toast('Nota borrada 🗑️');
 }
 
 /* ----- Registro de baño (orina / evacuación) ----- */
@@ -2025,14 +2044,15 @@ function registrarBano(tipo){
 }
 function renderBano(){
   const hoy = registrosBano.filter(b=>b.fecha===hoyFecha());
-  document.getElementById('banoChip').textContent = hoy.length+' hoy';
-  document.getElementById('banoChipTop').textContent = hoy.length+' hoy';
-  document.getElementById('statHoyBano').textContent = hoy.length;
+  const n = hoy.length;
+  document.getElementById('banoChip').textContent = n+' hoy';
+  document.getElementById('banoChipTop').textContent = n+' hoy';
+  document.getElementById('statHoyBano').textContent = n;
   const demo = datosBano7d();
   const sem = demo.reduce((a,p)=>a+p[0]+p[1],0);
   document.getElementById('statSemBano').textContent = sem;
   document.getElementById('statProBano').textContent = (sem/7).toFixed(1);
-  const filas = hoy.length
+  const filas = n
     ? hoy.map((b,i)=>
         '<div class="nota-row"><div class="nt">'+b.tipo+
         (b.nota ? ' <span style="color:var(--muted);font-weight:600">- '+b.nota.replace(/</g,'&lt;')+'</span>' : '')+
@@ -2219,6 +2239,8 @@ ajustarRutina();
 initRutina();
 actualizarGreet();
 actualizarProximaClase();
+window.addEventListener('beforeunload', mpFlush);
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) mpFlush(); });
 </script>
 </body>
 </html>
