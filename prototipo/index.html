@@ -689,6 +689,10 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
           <button class="btn glass" onclick="quitarVaso()">− Quitar</button>
         </div>
 
+        <!-- Historial de agua -->
+        <div class="section-title">Historial de agua</div>
+        <div class="card pad-sm" id="aguaHistorial"></div>
+
         <div class="section-title">Recordatorios</div>
         <div class="card pad-sm">
           <div class="set-row">
@@ -1125,13 +1129,30 @@ function cargarEstado(){
     if(mpEstado.color && PALETAS[mpEstado.color]) setColor(mpEstado.color, true);
     if(typeof mpEstado.fuente === 'number' && mpEstado.fuente !== 1) setFuente(mpEstado.fuente, null, true);
     if(mpEstado.ligero) aplicarLigero(true);
-    if(typeof mpEstado.vasos === 'number') vasos = Math.max(0, Math.min(TOTAL_VASOS, mpEstado.vasos));
-    // Comidas: cargar todas (con fecha), filtrar hoy para mostrar
-    if(Array.isArray(mpEstado.notas)) notasComida = mpEstado.notas.filter(n=>n && n.fecha);
-    // Baño: cargar todos (con fecha), filtrar hoy para mostrar
-    if(Array.isArray(mpEstado.bano)) registrosBano = mpEstado.bano.filter(b=>b && b.fecha);
-    // Agua: historial por fecha
+    const hoy = hoyFecha();
+    // Agua: historial por fecha. Restaurar vasos de HOY
     if(Array.isArray(mpEstado.aguaHist)) aguaHist = mpEstado.aguaHist.filter(a=>a && a.fecha);
+    const aguaHoy = aguaHist.find(a=>a.fecha===hoy);
+    if(aguaHoy && typeof aguaHoy.vasos === 'number'){
+      vasos = Math.max(0, Math.min(TOTAL_VASOS, aguaHoy.vasos));
+    } else if(typeof mpEstado.vasos === 'number' && mpEstado.vasosFecha === hoy){
+      // Solo si el vasos viejo es de HOY
+      vasos = Math.max(0, Math.min(TOTAL_VASOS, mpEstado.vasos));
+      aguaHist.push({fecha:hoy, vasos});
+    } else {
+      // Día nuevo o primera vez → 0 vasos
+      vasos = 0;
+    }
+    // Comidas: cargar todas. Registros viejos sin fecha → asignar hoy
+    if(Array.isArray(mpEstado.notas)) notasComida = mpEstado.notas.filter(n=>n && (n.txt||n.t)).map(n=>{
+      if(!n.fecha) n.fecha = hoy;
+      return n;
+    });
+    // Baño: cargar todos. Registros viejos sin fecha → asignar hoy
+    if(Array.isArray(mpEstado.bano)) registrosBano = mpEstado.bano.filter(b=>b && (b.tipo||b.t)).map(b=>{
+      if(!b.fecha) b.fecha = hoy;
+      return b;
+    });
     if(Array.isArray(mpEstado.registrosPeso)) registrosPeso = mpEstado.registrosPeso.filter(r=>r && r.fecha && typeof r.peso === 'number');
     if(typeof mpEstado.pesoDesde === 'number') pesoDesde = mpEstado.pesoDesde;
     if(typeof mpEstado.meta === 'number'){ document.getElementById('metaSlider').value = mpEstado.meta; moverMeta(String(mpEstado.meta)); }
@@ -1427,12 +1448,34 @@ function pintarAgua(){
   document.getElementById('miniAgua').innerHTML = ml.toLocaleString('es-ES')+' <small>/ 2.000 ml</small>';
   document.getElementById('miniAguaSub').textContent = vasos+' de '+TOTAL_VASOS+' vasos';
   mpSet('vasos', vasos);
+  mpSet('vasosFecha', hoyFecha());
   // Guardar historial por fecha
   const f = hoyFecha();
   const idx = aguaHist.findIndex(a=>a.fecha===f);
   if(idx>=0) aguaHist[idx].vasos = vasos; else aguaHist.push({fecha:f, vasos});
   aguaHist = aguaHist.slice(-30);
   mpSet('aguaHist', aguaHist);
+  renderAguaHistorial();
+}
+function renderAguaHistorial(){
+  const el = document.getElementById('aguaHistorial');
+  if(!el) return;
+  const NOMD = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const recientes = aguaHist.slice().reverse().slice(0,7);
+  if(!recientes.length){
+    el.innerHTML = '<div style="text-align:center;color:var(--muted);font-weight:800;font-size:13px;padding:8px">Sin registros todavía 💧</div>';
+    return;
+  }
+  el.innerHTML = recientes.map(a=>{
+    const esHoy = a.fecha === hoyFecha();
+    const d = new Date(a.fecha+'T12:00:00');
+    const nombre = esHoy ? 'Hoy' : NOMD[d.getDay()];
+    const ml = a.vasos * 250;
+    const pct = Math.round(a.vasos / TOTAL_VASOS * 100);
+    return '<div class="hist-row"><div><div class="d">'+nombre+'</div><div class="dt">'+d.getDate()+'/'+(d.getMonth()+1)+'</div></div>'+
+      '<div style="text-align:right"><div class="w">'+ml.toLocaleString('es-ES')+' <small>ml</small></div>'+
+      '<div class="dw '+(pct>=100?'down':'flat')+'">'+a.vasos+'/'+TOTAL_VASOS+' vasos · '+pct+'%</div></div></div>';
+  }).join('');
 }
 function sumarVaso(){ if(vasos<TOTAL_VASOS){ vasos++; marcarAgua(); pintarAgua(); toast('¡+'+250+' ml! 💧 '+ (TOTAL_VASOS-vasos>0 ? 'quedan '+(TOTAL_VASOS-vasos)+' vasos' : '¡objetivo cumplido! 🎉')); } else { toast('¡Objetivo diario cumplido! 🎉💧'); } }
 function quitarVaso(){ if(vasos>0){ vasos--; pintarAgua(); toast('Vaso retirado'); } }
