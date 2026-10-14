@@ -3,7 +3,11 @@ name: Generar APK
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -20,10 +24,22 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Compilar APK debug
-        run: gradle -p android assembleDebug
+      - name: Copiar index.html a assets
+        run: cp prototipo/index.html android/app/src/main/assets/index.html
 
-      - uses: actions/upload-artifact@v4
+      - name: Compilar APK release
+        run: gradle -p android assembleRelease
+
+      - name: Get version from tag
+        id: ver
+        run: echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Renombrar APK
+        run: mv android/app/build/outputs/apk/release/*.apk MotivaPeso-${{ steps.ver.outputs.tag }}.apk
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          name: MotivaPeso-debug
-          path: android/app/build/outputs/apk/debug/*.apk
+          files: MotivaPeso-${{ steps.ver.outputs.tag }}.apk
+          name: ${{ steps.ver.outputs.tag }}
