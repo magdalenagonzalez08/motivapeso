@@ -11,8 +11,15 @@ android {
         applicationId = "com.motivapeso.app"
         minSdk = 29
         targetSdk = 34
-        versionCode = 3
-        versionName = "2.1"
+        versionCode = 4
+        versionName = "2.2"
+    }
+
+    sourceSets {
+        getByName("main") {
+            // Una sola fuente de verdad: el HTML vive en prototipo/ y se empaqueta tal cual
+            assets.srcDir(file("../../prototipo"))
+        }
     }
 
     signingConfigs {

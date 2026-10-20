@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MotivaPeso v2.2 · qué cambió</title>
+<style>
+  :root{
+    --coral:#FF7A45; --coral2:#FF9F6E; --coral-soft:#FFE7DC;
+    --ink:#2A1B12; --muted:#7A6659; --line:#F0DFD4;
+    --card:#FFFFFF; --bg:#FFF8F4; --green:#10B981; --red:#E05555;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Ubuntu,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+  header.hero{background:
+      radial-gradient(900px 420px at 12% -10%, #FFD9C6 0%, transparent 60%),
+      radial-gradient(700px 380px at 92% 0%, #FFE9C9 0%, transparent 55%),
+      linear-gradient(180deg,#FFF3EC 0%, var(--bg) 100%);
+    padding:56px 0 26px;border-bottom:1px solid var(--line)}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .pill{font-size:12px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+    padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--muted)}
+  .pill.hot{background:var(--coral);border-color:var(--coral);color:#fff}
+  .pill.ok{background:#E8FAF1;border-color:#BFEEDC;color:#0B7A57}
+  h1{font-size:clamp(30px,5vw,48px);line-height:1.1;margin:0 0 12px;letter-spacing:-1px}
+  h1 span{color:var(--coral)}
+  .sub{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:680px;margin:0}
+  .meta{margin-top:22px;display:flex;gap:22px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+  .meta b{color:var(--ink)}
+
+  section{padding:44px 0}
+  h2{font-size:clamp(21px,3vw,27px);margin:0 0 6px;letter-spacing:-.4px}
+  .lead{color:var(--muted);margin:0 0 22px;max-width:720px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;
+    box-shadow:0 12px 30px -22px rgba(90,40,10,.35)}
+  .card .ico{font-size:26px;line-height:1;margin-bottom:10px;display:block}
+  .card b{display:block;font-size:15.5px;margin-bottom:4px}
+  .card p{margin:0;font-size:14px;color:var(--muted)}
+
+  .tbl{width:100%;border-collapse:separate;border-spacing:0;background:#fff;
+    border:1px solid var(--line);border-radius:22px;overflow:hidden;
+    box-shadow:0 12px 30px -22px rgba(90,40,10,.35)}
+  .tbl th,.tbl td{padding:14px 18px;text-align:left;font-size:14px;vertical-align:top;border-bottom:1px solid var(--line)}
+  .tbl th{font-size:11.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);background:#FFFBF8}
+  .tbl tr:last-child td{border-bottom:0}
+  .tbl td:first-child{font-weight:700;width:34%}
+  .old{color:var(--red)}
+  .new{color:#0B7A57}
+
+  .shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;align-items:start}
+  figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:22px;padding:10px;
+    box-shadow:0 18px 40px -28px rgba(90,40,10,.5)}
+  figure img{width:100%;display:block;border-radius:15px}
+  figcaption{font-size:12.5px;color:var(--muted);padding:10px 6px 4px;text-align:center;font-weight:600}
+
+  .steps{list-style:none;margin:0;padding:0;counter-reset:s}
+  .steps li{counter-increment:s;position:relative;padding:0 0 16px 46px;font-size:14.5px}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:-2px;width:30px;height:30px;
+    border-radius:50%;background:var(--coral-soft);color:var(--coral);font-weight:900;
+    display:grid;place-items:center;font-size:14px}
+  .steps b{display:block}
+
+  .callout{background:linear-gradient(135deg,#FFF1E9,#FFE8D6);border:1px solid #FFD9C2;
+    border-radius:22px;padding:20px 22px;font-size:14.5px}
+  .callout b{color:var(--coral)}
+  code{background:#F5EAE3;border-radius:6px;padding:1px 6px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+
+  footer{border-top:1px solid var(--line);padding:26px 0 42px;color:var(--muted);font-size:13px;text-align:center}
+  a{color:var(--coral)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badges">
+      <span class="pill hot">Versión 2.2</span>
+      <span class="pill">build 4</span>
+      <span class="pill ok">Actualiza encima de la 2.1</span>
+    </div>
+    <h1>El historial, <span>arreglado de raíz</span></h1>
+    <p class="sub">La 2.2 no trae adornos: corrige los bugs que hacían que el historial mintiera, se duplicara o guardara datos que nunca registraste. Y agrega el aviso de versión nueva dentro de la app.</p>
+    <div class="meta">
+      <span><b>Fecha:</b> 20 de octubre de 2026</span>
+      <span><b>Paquete:</b> com.motivapeso.app</span>
+      <span><b>Android:</b> 10 o superior</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Lo que estaba mal</h2>
+    <p class="lead">Estos eran los fallos reales del historial, comprobados con datos corruptos y desordenados antes de tocar el código.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Problema</th><th>Antes</th><th>Ahora</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>El botón "Registrar peso de hoy"</td>
+          <td class="old">Inventaba un peso: sumaba entre 0,1 y 0,4 kg al azar y lo guardaba como medición real.</td>
+          <td class="new">Abre una hoja para escribir el peso y elegir la fecha. Nunca inventa datos.</td>
+        </tr>
+        <tr>
+          <td>Orden del historial</td>
+          <td class="old">Mostraba el último registro insertado, no el más reciente. El "peso actual" podía ser de hace semanas.</td>
+          <td class="new">Se ordena por fecha al cargar y al guardar. El último es siempre el más reciente.</td>
+        </tr>
+        <tr>
+          <td>Duplicados y fechas rotas</td>
+          <td class="old">Dos pesos del mismo día aparecían dos veces y una fecha inválida mostraba <code>NaN/NaN</code>.</td>
+          <td class="new">Se fusionan por fecha y se descartan los registros ilegibles.</td>
+        </tr>
+        <tr>
+          <td>Diferencia entre registros</td>
+          <td class="old">Comparaba con el siguiente de la lista, no con la medición anterior en el tiempo.</td>
+          <td class="new">El delta ahora es cronológico: siempre contra la medición previa.</td>
+        </tr>
+        <tr>
+          <td>Historial de agua</td>
+          <td class="old">Solo abrir la app ya creaba el día con 0 vasos. Se duplicaban días y se desordenaba.</td>
+          <td class="new">Solo guarda cuando registras o quitas un vaso. Ordenado, sin duplicados, hasta 60 días.</td>
+        </tr>
+        <tr>
+          <td>Cambio de día</td>
+          <td class="old">Con la app abierta pasada la medianoche, los vasos de ayer se guardaban con la fecha de hoy.</td>
+          <td class="new">Detecta el cambio de día y reinicia el contador sin copiar nada.</td>
+        </tr>
+        <tr>
+          <td>"Restablecer todo"</td>
+          <td class="old">Borrándolo todo, el historial de agua quedaba intacto como días fantasma.</td>
+          <td class="new">Limpia peso, agua, comidas, baño y preferencias de verdad.</td>
+        </tr>
+        <tr>
+          <td>Exportar</td>
+          <td class="old">El botón no hacía nada en el APK: el puente nativo existía pero nadie lo llamaba.</td>
+          <td class="new">El .txt se guarda en Descargas, como debía ser.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Lo nuevo</h2>
+    <div class="grid">
+      <div class="card"><span class="ico">📅</span><b>Registro con fecha</b><p>Puedes anotar el peso de hoy o corregir el de un día pasado desde la misma hoja.</p></div>
+      <div class="card"><span class="ico">🗑️</span><b>Borrar un registro</b><p>Doble toque en la ✕ del historial para eliminar una medición mal puesta.</p></div>
+      <div class="card"><span class="ico">🔄</span><b>Aviso de versión</b><p>Ajustes → Actualizaciones consulta GitHub y te ofrece el APK nuevo cuando exista.</p></div>
+      <div class="card"><span class="ico">📦</span><b>Una sola fuente</b><p>Se eliminó la copia vieja del HTML que hacía que las compilaciones locales mostraran otra interfaz.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Así se ve ahora</h2>
+    <p class="lead">Capturas tomadas del HTML real, con datos de prueba desordenados a propósito.</p>
+    <div class="shots">
+      <figure>
+        <img src="capturas/v22-peso.png" alt="Historial de peso ordenado con diferencia entre registros">
+        <figcaption>Historial ordenado, con delta cronológico y borrado por registro</figcaption>
+      </figure>
+      <figure>
+        <img src="capturas/v22-registrar-peso.png" alt="Hoja para registrar peso con fecha">
+        <figcaption>Hoja de registro: peso y fecha, sin valores inventados</figcaption>
+      </figure>
+      <figure>
+        <img src="capturas/v22-agua.png" alt="Historial de agua de los últimos siete días">
+        <figcaption>Agua: gráfica de 7 días e historial sin días vacíos</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Cómo actualizar</h2>
+    <ol class="steps">
+      <li><b>Descarga el APK v2.2</b> desde la release en GitHub.</li>
+      <li><b>Ábrelo en el celular</b> y acepta "instalar de todos modos" si el sistema avisa.</li>
+      <li><b>Instala encima</b> de la versión anterior. Mismo paquete y misma firma: tus registros se quedan.</li>
+    </ol>
+    <div class="callout">
+      <b>Ojo:</b> la llave de firma sigue siendo la misma a propósito. Si se cambiara, Android obligaría a desinstalar la app y se perdería el historial guardado en el teléfono.
+    </div>
+  </div>
+</section>
+
+<footer>
+  MotivaPeso v2.2 · build 4 · Hecho por Magdalena
+</footer>
+
+</body>
+</html>

@@ -334,8 +334,8 @@ body.ligero .barra{animation:none!important}
 .qbtn:active{transform:scale(.93)}
 
 /* ============ NOTAS DE COMIDA Y BAÑO ============ */
-input[type=text],input[type=number]{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none}
-input[type=text]:focus,input[type=number]:focus{border-color:var(--primary)}
+input[type=text],input[type=number],input[type=date]{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none}
+input[type=text]:focus,input[type=number]:focus,input[type=date]:focus{border-color:var(--primary)}
 textarea{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none;resize:vertical;min-height:62px}
 textarea:focus{border-color:var(--primary)}
 .nota-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:11px 2px;border-bottom:1px dashed var(--glass-border)}
@@ -382,6 +382,10 @@ html[data-tema="oscuro"] .celda{filter:brightness(1.55) saturate(1.05)}
 .sheet-mask.show .sheet{transform:none}
 .sheet-grab{width:44px;height:5px;border-radius:3px;background:var(--glass-border);margin:2px auto 12px}
 .sheet-title{display:block;font-family:'Quicksand';font-size:18px;margin-bottom:14px;text-align:center}
+.sheet-lbl{font-size:10.5px;font-weight:900;letter-spacing:.6px;color:var(--muted);margin:0 0 6px 2px}
+.upd-box{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:12px 14px;border-radius:18px;background:var(--primary-soft);border:1px solid var(--glass-border)}
+.upd-box b{display:block;font-size:14px;font-family:'Quicksand'}
+.upd-box span{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-top:2px}
 .sheet-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .sheet-btn{border:0;border-radius:20px;padding:16px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:'Nunito';font-weight:900;font-size:14px;color:#fff;transition:.15s}
 .sheet-btn .emo{font-size:30px;line-height:1}
@@ -1012,7 +1016,17 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
           </div>
         </div>
 
-        <div class="foot-note">MotivaPeso v1.0 · Prototipo de diseño<br>Hecho con cariño para ganar terreno 💪</div>
+        <!-- Actualizaciones -->
+        <div class="section-title">Actualizaciones</div>
+        <div class="card pad-sm">
+          <div class="set-row">
+            <div class="set-left"><div class="sr-ico">🔄</div><div class="sr-txt"><b>MotivaPeso <span id="verTxt">v2.2 · build 4</span></b><span id="verEstado">Comprobando…</span></div></div>
+            <button class="btn glass" style="padding:9px 14px;font-size:13px" onclick="buscarActualizacion(true)">Revisar</button>
+          </div>
+          <div id="updCaja"></div>
+        </div>
+
+        <div class="foot-note">Hecho con cariño para ganar terreno 💪</div>
       </section>
 
     </main>
@@ -1053,6 +1067,26 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         </div>
         <input type="text" id="notaSheetBano" placeholder="Nota opcional…">
         <button class="btn glass full" style="margin-top:10px" onclick="cerrarSheetBano()">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- Hoja inferior: registrar peso con fecha real (nunca inventa valores) -->
+    <div class="sheet-mask" id="sheetPeso" onclick="cerrarSheetPeso()">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-grab"></div>
+        <b class="sheet-title">⚖️ Registrar peso</b>
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <div style="flex:1">
+            <div class="sheet-lbl">PESO (KG)</div>
+            <input type="text" id="pesoSheetVal" inputmode="decimal" autocomplete="off" placeholder="ej: 58,4">
+          </div>
+          <div style="flex:1">
+            <div class="sheet-lbl">FECHA</div>
+            <input type="date" id="pesoSheetFecha">
+          </div>
+        </div>
+        <button class="btn primary full" style="margin-top:14px" onclick="guardarSheetPeso()">Guardar peso</button>
+        <button class="btn glass full" style="margin-top:8px;border:0" onclick="cerrarSheetPeso()">Cancelar</button>
       </div>
     </div>
 
@@ -1129,6 +1163,12 @@ function toast(msg){
   toastTimer = setTimeout(()=>t.classList.remove('show'), 2400);
 }
 
+/* ---------- Versión y actualizaciones ---------- */
+const APP_VERSION = '2.2';
+const APP_VERSION_CODE = 4;
+const REPO_GH = 'magdalenagonzalez08/motivapeso';
+const URL_RELEASES = 'https://github.com/'+REPO_GH+'/releases/latest';
+
 /* ---------- Persistencia ligera (localStorage) ---------- */
 const MP_KEY = 'motivapeso_v1';
 let mpEstado = {};
@@ -1145,6 +1185,36 @@ function mpSet(k, v){ mpEstado[k] = v; guardarEstado(); }
 function mpFlush(){ if(_mpTimer){ clearTimeout(_mpTimer); _mpTimer=null; } _mpDirty=true; _mpFlush(); }
 function guardarBanoEstado(){ mpSet('bano', registrosBano); mpSet('banoFecha', hoyFecha()); }
 function guardarNotasEstado(){ mpSet('notas', notasComida); mpSet('notasFecha', hoyFecha()); }
+/* ---------- Fechas: validación y normalización de registros ---------- */
+const FECHA_RE = /^\d{4}-\d{2}-\d{2}$/;
+function fechaValida(f){
+  if(typeof f !== 'string' || !FECHA_RE.test(f)) return false;
+  const d = new Date(f+'T12:00:00');
+  return !isNaN(d.getTime()) && d.getFullYear() > 2000;
+}
+function normalizarPesos(lista){
+  const mapa = new Map();
+  (Array.isArray(lista) ? lista : []).forEach(r=>{
+    if(!r || !fechaValida(r.fecha)) return;
+    const p = Number(r.peso);
+    if(!isFinite(p) || p < 20 || p > 400) return;
+    mapa.set(r.fecha, {fecha:r.fecha, peso:Math.round(p*10)/10});
+  });
+  return Array.from(mapa.values()).sort((a,b)=> a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : 0);
+}
+function normalizarAgua(lista){
+  const mapa = new Map();
+  (Array.isArray(lista) ? lista : []).forEach(a=>{
+    if(!a || !fechaValida(a.fecha)) return;
+    const v = Number(a.vasos);
+    if(!isFinite(v)) return;
+    mapa.set(a.fecha, {fecha:a.fecha, vasos:Math.max(0, Math.min(TOTAL_VASOS, Math.round(v)))});
+  });
+  return Array.from(mapa.values()).sort((a,b)=> a.fecha < b.fecha ? -1 : 1).slice(-60);
+}
+/* Día activo: evita que los contadores de ayer se guarden con la fecha de hoy */
+let diaActivo = null;
+
 function cargarEstado(){
   try{
     if(mpEstado.tema === 'oscuro') setTema('oscuro', true);
@@ -1152,30 +1222,31 @@ function cargarEstado(){
     if(typeof mpEstado.fuente === 'number' && mpEstado.fuente !== 1) setFuente(mpEstado.fuente, null, true);
     if(mpEstado.ligero) aplicarLigero(true);
     const hoy = hoyFecha();
-    // Agua: historial por fecha. Restaurar vasos de HOY
-    if(Array.isArray(mpEstado.aguaHist)) aguaHist = mpEstado.aguaHist.filter(a=>a && a.fecha);
+    diaActivo = hoy;
+    // Agua: historial normalizado (fechas válidas, sin duplicados, ordenado)
+    aguaHist = normalizarAgua(mpEstado.aguaHist);
     const aguaHoy = aguaHist.find(a=>a.fecha===hoy);
-    if(aguaHoy && typeof aguaHoy.vasos === 'number'){
-      vasos = Math.max(0, Math.min(TOTAL_VASOS, aguaHoy.vasos));
+    if(aguaHoy){
+      vasos = aguaHoy.vasos;
     } else if(typeof mpEstado.vasos === 'number' && mpEstado.vasosFecha === hoy){
-      // Solo si el vasos viejo es de HOY
-      vasos = Math.max(0, Math.min(TOTAL_VASOS, mpEstado.vasos));
-      aguaHist.push({fecha:hoy, vasos});
+      // Compatibilidad con versiones viejas: solo si el contador es de HOY
+      vasos = Math.max(0, Math.min(TOTAL_VASOS, Math.round(mpEstado.vasos)));
     } else {
       // Día nuevo o primera vez → 0 vasos
       vasos = 0;
     }
     // Comidas: cargar todas. Registros viejos sin fecha → asignar hoy
     if(Array.isArray(mpEstado.notas)) notasComida = mpEstado.notas.filter(n=>n && (n.txt||n.t)).map(n=>{
-      if(!n.fecha) n.fecha = hoy;
+      if(!fechaValida(n.fecha)) n.fecha = hoy;
       return n;
     });
     // Baño: cargar todos. Registros viejos sin fecha → asignar hoy
     if(Array.isArray(mpEstado.bano)) registrosBano = mpEstado.bano.filter(b=>b && (b.tipo||b.t)).map(b=>{
-      if(!b.fecha) b.fecha = hoy;
+      if(!fechaValida(b.fecha)) b.fecha = hoy;
       return b;
     });
-    if(Array.isArray(mpEstado.registrosPeso)) registrosPeso = mpEstado.registrosPeso.filter(r=>r && r.fecha && typeof r.peso === 'number');
+    // Peso: ordenado por fecha, sin duplicados ni valores corruptos
+    registrosPeso = normalizarPesos(mpEstado.registrosPeso);
     if(typeof mpEstado.pesoDesde === 'number') pesoDesde = mpEstado.pesoDesde;
     if(typeof mpEstado.meta === 'number'){ document.getElementById('metaSlider').value = mpEstado.meta; moverMeta(String(mpEstado.meta)); }
     const id2 = document.getElementById('inpDesde');
@@ -1330,12 +1401,18 @@ function renderPeso(){
     path.style.strokeDasharray = 'none';
     path.style.strokeDashoffset = 0;
   } else {
-    const largo = path.getTotalLength();
-    path.style.strokeDasharray = largo;
-    path.style.strokeDashoffset = largo;
-    path.getBoundingClientRect();
-    path.style.transition = 'stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)';
-    path.style.strokeDashoffset = 0;
+    try{
+      const largo = path.getTotalLength();
+      path.style.strokeDasharray = largo;
+      path.style.strokeDashoffset = largo;
+      path.getBoundingClientRect();
+      path.style.transition = 'stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)';
+      path.style.strokeDashoffset = 0;
+    }catch(e){
+      // Si el WebView no soporta la medición del trazo, se dibuja de una vez
+      path.style.strokeDasharray = 'none';
+      path.style.strokeDashoffset = 0;
+    }
   }
 }
 function rangoPeso(r, btn){
@@ -1345,13 +1422,36 @@ function rangoPeso(r, btn){
   renderPeso();
 }
 
-/* Registrar un nuevo peso de hoy */
-function registrarPeso(){
+/* Registrar un peso: pide el valor real, nunca inventa datos */
+function registrarPeso(){ abrirSheetPeso(); }
+function abrirSheetPeso(){
   const u = ultimoPeso();
-  const base = u !== null ? u : (pesoDesde || 55);
-  const nuevo = u === null ? base : Math.round((base + 0.1 + Math.random()*0.3)*10)/10;
-  registrarPesoEnFecha(hoyFecha(), nuevo);
-  toast(u === null ? '¡Primer peso registrado! 🌱' : 'Peso registrado: '+fmt(nuevo)+' kg ⚖️');
+  const inp = document.getElementById('pesoSheetVal');
+  const fch = document.getElementById('pesoSheetFecha');
+  if(!inp || !fch) return;
+  inp.value = u !== null ? u.toFixed(1) : (pesoDesde > 0 ? pesoDesde.toFixed(1) : '');
+  fch.value = hoyFecha();
+  fch.max = hoyFecha();
+  document.getElementById('sheetPeso').classList.add('show');
+  setTimeout(()=>{ try{ inp.focus(); inp.select(); }catch(e){} }, 260);
+}
+function cerrarSheetPeso(){
+  const s = document.getElementById('sheetPeso');
+  if(s) s.classList.remove('show');
+}
+function guardarSheetPeso(){
+  const inp = document.getElementById('pesoSheetVal');
+  const fch = document.getElementById('pesoSheetFecha');
+  const v = parseFloat(String(inp.value).replace(',', '.'));
+  const f = fch.value || hoyFecha();
+  if(isNaN(v) || v < 30 || v > 200){ toast('Peso no válido (30 a 200 kg)'); return; }
+  if(!fechaValida(f)){ toast('Fecha no válida'); return; }
+  if(f > hoyFecha()){ toast('No puedes registrar un peso futuro'); return; }
+  registrarPesoEnFecha(f, v);
+  const ip = document.getElementById('inpPeso');
+  if(ip) ip.value = v.toFixed(1);
+  cerrarSheetPeso();
+  toast('Peso '+fmt(v)+' kg · '+fechaCorta(f)+' ⚖️');
 }
 
 /* ============================================================
@@ -1453,13 +1553,13 @@ let vasos = 0;
 const TOTAL_VASOS = 8;
 let aguaHist = [];
 
-function pintarAgua(){
+function pintarAgua(sinGuardar){
   const cont = document.getElementById('vasos');
   cont.innerHTML='';
   for(let i=0;i<TOTAL_VASOS;i++){
     const b=document.createElement('button');
     b.className='glass-dot'+(i<vasos?' full':'');
-    b.onclick=()=>{ const nuevo = (i+1===vasos) ? i : i+1; if(nuevo > vasos) marcarAgua(); vasos = nuevo; pintarAgua(); };
+    b.onclick=()=>{ if(asegurarDiaActual()) return; const nuevo = (i+1===vasos) ? i : i+1; if(nuevo > vasos) marcarAgua(); vasos = nuevo; pintarAgua(); };
     cont.appendChild(b);
   }
   const ml = vasos*250;
@@ -1469,21 +1569,38 @@ function pintarAgua(){
   document.getElementById('waterG').style.transform = 'translateY('+(250 - vasos/TOTAL_VASOS*250).toFixed(0)+'px)';
   document.getElementById('miniAgua').innerHTML = ml.toLocaleString('es-ES')+' <small>/ 2.000 ml</small>';
   document.getElementById('miniAguaSub').textContent = vasos+' de '+TOTAL_VASOS+' vasos';
-  mpSet('vasos', vasos);
-  mpSet('vasosFecha', hoyFecha());
-  // Guardar historial por fecha
-  const f = hoyFecha();
-  const idx = aguaHist.findIndex(a=>a.fecha===f);
-  if(idx>=0) aguaHist[idx].vasos = vasos; else aguaHist.push({fecha:f, vasos});
-  aguaHist = aguaHist.slice(-30);
-  mpSet('aguaHist', aguaHist);
+  // Solo se guarda cuando hay un cambio real del usuario (no al abrir la app)
+  if(!sinGuardar){
+    const f = hoyFecha();
+    const idx = aguaHist.findIndex(a=>a.fecha===f);
+    if(idx>=0) aguaHist[idx].vasos = vasos; else aguaHist.push({fecha:f, vasos});
+    aguaHist = normalizarAgua(aguaHist);
+    mpSet('vasos', vasos);
+    mpSet('vasosFecha', f);
+    mpSet('aguaHist', aguaHist);
+  }
   renderAguaHistorial();
+}
+/* Si cambió el día con la app abierta, los vasos de ayer no se copian a hoy */
+function asegurarDiaActual(){
+  const h = hoyFecha();
+  if(diaActivo === h) return false;
+  diaActivo = h;
+  const reg = aguaHist.find(a=>a.fecha===h);
+  vasos = reg ? reg.vasos : 0;
+  pintarAgua(true);
+  renderHistorial();
+  renderNotas();
+  renderBano();
+  renderComidaHistorial();
+  toast('Nuevo día · contadores en cero 🌅');
+  return true;
 }
 function renderAguaHistorial(){
   const el = document.getElementById('aguaHistorial');
   if(!el) return;
   const NOMD = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  const recientes = aguaHist.slice().reverse().slice(0,7);
+  const recientes = aguaHist.slice().sort((a,b)=> a.fecha < b.fecha ? 1 : -1).slice(0,7);
   if(!recientes.length){
     el.innerHTML = '<div style="text-align:center;color:var(--muted);font-weight:800;font-size:13px;padding:8px">Sin registros todavía 💧</div>';
   } else {
@@ -1495,7 +1612,7 @@ function renderAguaHistorial(){
       const pct = Math.round(a.vasos / TOTAL_VASOS * 100);
       return '<div class="hist-row"><div><div class="d">'+nombre+'</div><div class="dt">'+d.getDate()+'/'+(d.getMonth()+1)+'</div></div>'+
         '<div style="text-align:right"><div class="w">'+ml.toLocaleString('es-ES')+' <small>ml</small></div>'+
-        '<div class="dw '+(pct>=100?'down':'flat')+'">'+a.vasos+'/'+TOTAL_VASOS+' vasos · '+pct+'%</div></div></div>';
+        '<div class="dw '+(pct>=100?'up':'flat')+'">'+a.vasos+'/'+TOTAL_VASOS+' vasos · '+pct+'%</div></div></div>';
     }).join('');
   }
   pintarAguaChart();
@@ -1529,8 +1646,8 @@ function pintarAguaChart(){
       '</div><span>'+dias[i]+'</span></div>';
   }).join('');
 }
-function sumarVaso(){ if(vasos<TOTAL_VASOS){ vasos++; marcarAgua(); pintarAgua(); toast('¡+'+250+' ml! 💧 '+ (TOTAL_VASOS-vasos>0 ? 'quedan '+(TOTAL_VASOS-vasos)+' vasos' : '¡objetivo cumplido! 🎉')); } else { toast('¡Objetivo diario cumplido! 🎉💧'); } }
-function quitarVaso(){ if(vasos>0){ vasos--; pintarAgua(); toast('Vaso retirado'); } }
+function sumarVaso(){ if(asegurarDiaActual()) return; if(vasos<TOTAL_VASOS){ vasos++; marcarAgua(); pintarAgua(); toast('¡+'+250+' ml! 💧 '+ (TOTAL_VASOS-vasos>0 ? 'quedan '+(TOTAL_VASOS-vasos)+' vasos' : '¡objetivo cumplido! 🎉')); } else { toast('¡Objetivo diario cumplido! 🎉💧'); } }
+function quitarVaso(){ if(asegurarDiaActual()) return; if(vasos>0){ vasos--; pintarAgua(); toast('Vaso retirado'); } }
 
 /* ============================================================
    HORARIO · Checklist y campanas
@@ -1739,12 +1856,15 @@ function moverMeta(v){
 /* ----- Peso: fuente única de datos ----- */
 function ultimoPeso(){ return registrosPeso.length ? registrosPeso[registrosPeso.length-1].peso : null; }
 function registrarPesoEnFecha(fecha, peso){
-  const existe = registrosPeso.find(r=>r.fecha===fecha);
-  if(existe) existe.peso = peso; else registrosPeso.push({fecha:fecha, peso:peso});
-  registrosPeso.sort((a,b)=> a.fecha < b.fecha ? -1 : 1);
+  if(!fechaValida(fecha)) return false;
+  const p = Number(peso);
+  if(!isFinite(p) || p < 30 || p > 200) return false;
+  const valor = Math.round(p*10)/10;
+  registrosPeso = normalizarPesos(registrosPeso.concat([{fecha:fecha, peso:valor}]));
   mpSet('registrosPeso', registrosPeso);
-  mpSet('pesoActual', peso);
+  mpSet('pesoActual', valor);
   actualizarTodoPeso();
+  return true;
 }
 function actualizarTodoPeso(){
   const u = ultimoPeso();
@@ -1780,23 +1900,51 @@ function pintarMiniPeso(){
 }
 function renderHistorial(){
   const hist = document.getElementById('historial');
+  if(!hist) return;
   if(!registrosPeso.length){
     hist.innerHTML = '<div style="text-align:center;color:var(--muted);font-weight:800;font-size:13px;padding:12px">Todavía sin registros. Tus pesos aparecerán aquí. ⚖️</div>';
     return;
   }
   const NOMD = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const hoy = hoyFecha();
+  const dAyer = new Date(); dAyer.setDate(dAyer.getDate()-1);
+  const ayer = dAyer.getFullYear()+'-'+String(dAyer.getMonth()+1).padStart(2,'0')+'-'+String(dAyer.getDate()).padStart(2,'0');
   const rev = registrosPeso.slice().reverse();
-  hist.innerHTML = rev.map((r,i)=>{
+  const ultimo = registrosPeso[registrosPeso.length-1];
+  const filas = rev.map((r,i)=>{
     const prev = rev[i+1];
     const d = prev ? Math.round((r.peso - prev.peso)*10)/10 : null;
     let sub;
     if(d === null) sub = '<div class="dw flat">🌱 inicio</div>';
-    else sub = '<div class="dw '+(d > 0 ? 'up' : d < 0 ? 'down' : 'flat')+'">'+(d > 0 ? '▲ +' : d < 0 ? '▼ −' : '- ')+fmt(Math.abs(d))+'</div>';
+    else sub = '<div class="dw '+(d > 0 ? 'up' : d < 0 ? 'down' : 'flat')+'">'+(d > 0 ? '▲ +' : d < 0 ? '▼ −' : '– ')+fmt(Math.abs(d))+'</div>';
     const dt = new Date(r.fecha+'T12:00:00');
-    const nombre = r.fecha === hoyFecha() ? 'Hoy' : NOMD[dt.getDay()];
-    return '<div class="hist-row"><div><div class="d">'+nombre+'</div><div class="dt">'+dt.getDate()+'/'+(dt.getMonth()+1)+'</div></div>'+
-      '<div style="text-align:right"><div class="w">'+fmt(r.peso)+' <small>kg</small></div>'+sub+'</div></div>';
+    const nombre = r.fecha === hoy ? 'Hoy' : r.fecha === ayer ? 'Ayer' : NOMD[dt.getDay()];
+    return '<div class="hist-row"><div><div class="d">'+nombre+'</div><div class="dt">'+dt.getDate()+'/'+(dt.getMonth()+1)+'/'+dt.getFullYear()+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:8px;text-align:right"><div><div class="w">'+fmt(r.peso)+' <small>kg</small></div>'+sub+'</div>'+
+      '<button class="del-x" title="Borrar este registro" onclick="borrarPeso(\''+r.fecha+'\',this)" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✕</button></div></div>';
   }).join('');
+  hist.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 2px 8px;font-size:11.5px;font-weight:900;color:var(--muted);letter-spacing:.3px;text-transform:uppercase">'+
+      '<span>'+registrosPeso.length+(registrosPeso.length===1?' registro':' registros')+'</span>'+
+      '<span>Último: '+fechaCorta(ultimo.fecha)+'</span></div>'+filas;
+}
+function fechaCorta(f){
+  const d = new Date(f+'T12:00:00');
+  if(isNaN(d.getTime())) return '—';
+  return d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();
+}
+function borrarPeso(fecha, btn){
+  if(btn.dataset.confirm !== '1'){
+    btn.dataset.confirm = '1';
+    btn.textContent = '¿?';
+    const vuelve = ()=>{ btn.dataset.confirm = ''; btn.textContent = '✕'; };
+    setTimeout(vuelve, 2500);
+    toast('Toca otra vez para borrar el '+fechaCorta(fecha));
+    return;
+  }
+  registrosPeso = registrosPeso.filter(r=>r.fecha !== fecha);
+  mpSet('registrosPeso', registrosPeso);
+  actualizarTodoPeso();
+  toast('Registro del '+fechaCorta(fecha)+' borrado 🗑️');
 }
 function aplicarPeso(nuevo, silencioso){
   registrarPesoEnFecha(hoyFecha(), nuevo);
@@ -2204,6 +2352,13 @@ function borrarBano(i){
 
 /* ----- Exportar datos (descarga real de archivos .txt) ----- */
 function descargar(nombre, contenido){
+  // En el APK no existe la descarga por blob: se guarda con el puente nativo en Descargas
+  try{
+    if(window.AndroidBridge && window.AndroidBridge.saveFile){
+      window.AndroidBridge.saveFile(nombre, contenido);
+      return;
+    }
+  }catch(e){}
   const blob = new Blob([contenido], {type:'text/plain;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -2298,9 +2453,11 @@ function restablecerTodo(btn){
   pesoDesde = 0;
   registrosBano = [];
   notasComida = [];
+  aguaHist = [];
   vasos = 0;
   try{ localStorage.removeItem(MP_KEY); }catch(e){}
   mpEstado = {};
+  diaActivo = hoyFecha();
   document.getElementById('metaSlider').value = 62;
   moverMeta('62');
   const ip = document.getElementById('inpPeso');
@@ -2311,16 +2468,74 @@ function restablecerTodo(btn){
   renderBano();
   renderNotas();
   renderComidaHistorial();
-  pintarAgua();
+  pintarAgua(true);
   btn.dataset.confirm = '';
   btn.textContent = 'Borrar';
-  toast('Datos del día borrados 🗑️');
+  toast('Todo restablecido 🗑️');
+}
+
+/* ---------- Actualizaciones (GitHub Releases) ---------- */
+function compararVersiones(a, b){
+  const pa = String(a).replace(/^v/i,'').split('.').map(n=>parseInt(n,10)||0);
+  const pb = String(b).replace(/^v/i,'').split('.').map(n=>parseInt(n,10)||0);
+  for(let i=0;i<Math.max(pa.length,pb.length);i++){
+    const x = pa[i]||0, y = pb[i]||0;
+    if(x > y) return 1;
+    if(x < y) return -1;
+  }
+  return 0;
+}
+function abrirEnlace(url){
+  try{
+    if(window.AndroidBridge && window.AndroidBridge.abrirEnlace){ window.AndroidBridge.abrirEnlace(url); return; }
+  }catch(e){}
+  window.open(url, '_blank');
+}
+async function buscarActualizacion(manual){
+  const estado = document.getElementById('verEstado');
+  const caja = document.getElementById('updCaja');
+  const ver = document.getElementById('verTxt');
+  if(ver) ver.textContent = 'v'+APP_VERSION+' · build '+APP_VERSION_CODE;
+  if(estado) estado.textContent = 'Buscando actualizaciones…';
+  if(caja) caja.innerHTML = '';
+  try{
+    const ctrl = new AbortController();
+    const timer = setTimeout(()=>ctrl.abort(), 9000);
+    const res = await fetch('https://api.github.com/repos/'+REPO_GH+'/releases/latest', {
+      headers:{'Accept':'application/vnd.github+json'}, signal:ctrl.signal, cache:'no-store'
+    });
+    clearTimeout(timer);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const rel = await res.json();
+    const tag = rel.tag_name || rel.name || '';
+    if(compararVersiones(tag, APP_VERSION) > 0){
+      const apk = (rel.assets || []).find(a=>/\.apk$/i.test(a.name || ''));
+      const url = apk ? apk.browser_download_url : rel.html_url;
+      if(estado) estado.innerHTML = 'Hay versión nueva: <b>'+tag+'</b>';
+      if(caja) caja.innerHTML = '<div class="upd-box"><div style="min-width:0"><b>'+tag+' disponible</b>'+
+        '<span>'+(rel.name ? String(rel.name).replace(/</g,'&lt;') : 'Nueva versión de MotivaPeso')+'</span></div>'+
+        '<button class="btn primary" style="flex-shrink:0;padding:10px 14px" onclick="abrirEnlace(\''+url+'\')">Descargar</button></div>';
+    } else {
+      if(estado) estado.textContent = 'Estás al día ✅';
+      if(manual) toast('Ya tienes la última versión ✅');
+    }
+  }catch(e){
+    if(estado) estado.textContent = 'No se pudo comprobar (sin conexión)';
+    if(caja) caja.innerHTML = '<button class="btn glass full" style="margin-top:8px" onclick="abrirEnlace(\''+URL_RELEASES+'\')">Ver versiones en GitHub</button>';
+    if(manual) toast('Sin conexión o GitHub no responde');
+  }
+}
+function revisionAutomatica(){
+  const ult = Number(mpEstado.ultimaRevision) || 0;
+  if(Date.now() - ult < 12*3600*1000) return;
+  mpSet('ultimaRevision', Date.now());
+  buscarActualizacion(false);
 }
 
 /* ---------- Arranque ---------- */
 cargarEstado();
 actualizarTodoPeso();
-pintarAgua();
+pintarAgua(true);
 mostrarUltimaAgua();
 pintarUltimoEntreno();
 renderNotas();
@@ -2331,7 +2546,12 @@ initRutina();
 actualizarGreet();
 actualizarProximaClase();
 window.addEventListener('beforeunload', mpFlush);
-document.addEventListener('visibilitychange', ()=>{ if(document.hidden) mpFlush(); });
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden) mpFlush();
+  else asegurarDiaActual();
+});
+setInterval(asegurarDiaActual, 60000);
+setTimeout(revisionAutomatica, 2500);
 </script>
 </body>
 </html>

@@ -27,6 +27,8 @@ class MainActivity : Activity() {
             javaScriptEnabled = true
             domStorageEnabled = true
             allowFileAccess = true
+            // Permite consultar la API de GitHub (HTTPS) desde el HTML local
+            allowUniversalAccessFromFileURLs = true
         }
 
         webView.webViewClient = object : WebViewClient() {
@@ -51,6 +53,21 @@ class MainActivity : Activity() {
     }
 
     inner class Bridge {
+
+        /** Abre un enlace (descarga del APK, releases, etc.) en el navegador del teléfono */
+        @JavascriptInterface
+        fun abrirEnlace(url: String) {
+            if (!url.startsWith("https://")) return
+            try {
+                runOnUiThread {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "No se pudo abrir el enlace", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
         @JavascriptInterface
         fun saveFile(nombre: String, contenido: String) {

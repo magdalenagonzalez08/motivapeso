@@ -24,22 +24,58 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Copiar index.html a assets
-        run: cp prototipo/index.html android/app/src/main/assets/index.html
+      - name: Leer versión de la app
+        id: ver
+        run: |
+          VERSION=$(grep -oP 'versionName = "\K[^"]+' android/app/build.gradle.kts)
+          CODE=$(grep -oP 'versionCode = \K[0-9]+' android/app/build.gradle.kts)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "code=$CODE" >> $GITHUB_OUTPUT
+          echo "Versión: $VERSION (build $CODE)"
+
+      - name: Verificar que el tag coincida con la versión
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          if [ "v${{ steps.ver.outputs.version }}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::El tag ${GITHUB_REF_NAME} no coincide con versionName ${{ steps.ver.outputs.version }}"
+            exit 1
+          fi
 
       - name: Compilar APK release
         run: gradle -p android assembleRelease
 
-      - name: Get version from tag
-        id: ver
-        run: echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
-
       - name: Renombrar APK
-        run: mv android/app/build/outputs/apk/release/*.apk MotivaPeso-${{ steps.ver.outputs.tag }}.apk
+        run: |
+          mv android/app/build/outputs/apk/release/*.apk "MotivaPeso-v${{ steps.ver.outputs.version }}.apk"
+          ls -lh MotivaPeso-*.apk
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Guardar APK como artefacto
+        uses: actions/upload-artifact@v4
         with:
-          files: MotivaPeso-${{ steps.ver.outputs.tag }}.apk
-          name: ${{ steps.ver.outputs.tag }}
+          name: MotivaPeso-v${{ steps.ver.outputs.version }}
+          path: MotivaPeso-v${{ steps.ver.outputs.version }}.apk
+          retention-days: 30
+
+      - name: Publicar Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "💧 MotivaPeso v${{ steps.ver.outputs.version }}"
+          tag_name: ${{ github.ref_name }}
+          make_latest: true
+          generate_release_notes: true
+          body: |
+            ## 💧 MotivaPeso v${{ steps.ver.outputs.version }}
+
+            App para subir de peso con salud: peso, agua, comidas, baño, rutinas y horario.
+
+            ### Cómo instalar
+            1. Descarga **MotivaPeso-v${{ steps.ver.outputs.version }}.apk** aquí abajo.
+            2. Ábrelo en el celular y acepta "instalar de todos modos" (no está en Play Store).
+            3. Si ya tienes una versión anterior, se actualiza encima **sin borrar tus datos**.
+
+            > Requiere Android 10 o superior. Firma y paquete iguales a las versiones anteriores, así que la actualización es directa.
+
+            ### Novedades
+            Revisa `CHANGELOG.md` en el repositorio para el detalle completo.
+          files: MotivaPeso-v${{ steps.ver.outputs.version }}.apk
