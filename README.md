@@ -1,6 +1,6 @@
 # MotivaPeso
 
-[![Descargar APK](https://img.shields.io/badge/Descargar-APK%20v2.2-FF7A45?style=for-the-badge&logo=android)](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)
+[![Descargar APK](https://img.shields.io/badge/Descargar-APK%20v2.3-FF7A45?style=for-the-badge&logo=android)](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)
 ![Android 10+](https://img.shields.io/badge/Android-10%2B-3DDC84?style=flat-square&logo=android)
 ![Tamaño](https://img.shields.io/badge/tamaño-~3%20MB-lightgrey?style=flat-square)
 ![Acción](https://img.shields.io/github/actions/workflow/status/magdalenagonzalez08/motivapeso/build-apk.yml?branch=main&style=flat-square)
@@ -17,7 +17,7 @@ La interfaz es una página HTML que metí dentro de una app Android bien liviana
 
 ## Bajarla
 
-**[Descargar MotivaPeso v2.2](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)**
+**[Descargar MotivaPeso v2.3](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)**
 
 Ábrela en el celular y dale a instalar. Si el teléfono avisa que es una app de fuente desconocida, es normal: no está en Play Store. Dale a "instalar de todos modos" y listo.
 
@@ -34,6 +34,7 @@ La app revisa sola si hay una versión nueva en GitHub (una vez al día) y te lo
 - Frases motivacionales para cuando se cae la constancia
 - Gráfica del peso con anillo de progreso hacia tu meta
 - Historial de peso ordenado por fecha, con la diferencia entre una medición y la anterior, y opción de borrar un registro mal puesto
+- Agua y baño de días pasados: puedes rellenar un día que se te olvidó o corregir uno que quedó mal
 - Mis rutinas de fuerza (A los miércoles, B los viernes) con los ejercicios, series y pesos que uso
 - Vasos de agua con meta de 2 litros, historial por día y registro de la última vez que bebiste
 - Registro de baño con gráfica de la semana (sí, también quería ver cuántas veces orinaba al día, sin culpa)
@@ -43,6 +44,12 @@ La app revisa sola si hay una versión nueva en GitHub (una vez al día) y te lo
 - Todo en español, tema claro y oscuro, y se puede cambiar el color de la app
 - Exportar la bitácora del día o el historial a un .txt en Descargas
 - Aviso de versión nueva dentro de la app
+
+## Qué cambió en la 2.3
+
+- Puedes registrar **agua de otro día** desde el historial: "＋ Otro día" o el lápiz ✎ de cada fila
+- El **baño** ahora pide fecha y hora, así puedes apuntar algo de ayer
+- En Baño hay una sección **Días anteriores** con el conteo de cada día y una ✕ para borrar registros viejos
 
 ## Qué cambió en la 2.2
 

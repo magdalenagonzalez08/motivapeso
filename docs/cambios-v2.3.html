@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MotivaPeso v2.3 · registrar en otra fecha</title>
+<style>
+  :root{
+    --coral:#FF7A45; --coral-soft:#FFE7DC; --ink:#2A1B12; --muted:#7A6659;
+    --line:#F0DFD4; --card:#FFFFFF; --bg:#FFF8F4;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Ubuntu,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  header.hero{background:
+      radial-gradient(900px 420px at 12% -10%, #FFD9C6 0%, transparent 60%),
+      radial-gradient(700px 380px at 92% 0%, #FFE9C9 0%, transparent 55%),
+      linear-gradient(180deg,#FFF3EC 0%, var(--bg) 100%);
+    padding:56px 0 26px;border-bottom:1px solid var(--line)}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .pill{font-size:12px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+    padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--muted)}
+  .pill.hot{background:var(--coral);border-color:var(--coral);color:#fff}
+  .pill.ok{background:#E8FAF1;border-color:#BFEEDC;color:#0B7A57}
+  h1{font-size:clamp(30px,5vw,46px);line-height:1.1;margin:0 0 12px;letter-spacing:-1px}
+  h1 span{color:var(--coral)}
+  .sub{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:680px;margin:0}
+  .meta{margin-top:22px;display:flex;gap:22px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+  .meta b{color:var(--ink)}
+  section{padding:44px 0}
+  h2{font-size:clamp(21px,3vw,27px);margin:0 0 6px;letter-spacing:-.4px}
+  .lead{color:var(--muted);margin:0 0 22px;max-width:720px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;
+    box-shadow:0 12px 30px -22px rgba(90,40,10,.35)}
+  .card .ico{font-size:26px;line-height:1;margin-bottom:10px;display:block}
+  .card b{display:block;font-size:15.5px;margin-bottom:4px}
+  .card p{margin:0;font-size:14px;color:var(--muted)}
+  .shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;align-items:start}
+  figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:22px;padding:10px;
+    box-shadow:0 18px 40px -28px rgba(90,40,10,.5)}
+  figure img{width:100%;display:block;border-radius:15px}
+  figcaption{font-size:12.5px;color:var(--muted);padding:10px 6px 4px;text-align:center;font-weight:600}
+  .steps{list-style:none;margin:0;padding:0;counter-reset:s}
+  .steps li{counter-increment:s;position:relative;padding:0 0 16px 46px;font-size:14.5px}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:-2px;width:30px;height:30px;
+    border-radius:50%;background:var(--coral-soft);color:var(--coral);font-weight:900;
+    display:grid;place-items:center;font-size:14px}
+  .steps b{display:block}
+  .check{display:grid;gap:10px}
+  .check div{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);
+    border-radius:16px;padding:12px 14px;font-size:14px}
+  .check span:first-child{color:#0B7A57;font-weight:900}
+  code{background:#F5EAE3;border-radius:6px;padding:1px 6px;font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+  footer{border-top:1px solid var(--line);padding:26px 0 42px;color:var(--muted);font-size:13px;text-align:center}
+  a{color:var(--coral)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badges">
+      <span class="pill hot">Versión 2.3</span>
+      <span class="pill">build 5</span>
+      <span class="pill ok">Se instala encima de la 2.2</span>
+    </div>
+    <h1>Registrar lo que <span>se te olvidó</span></h1>
+    <p class="sub">Ahora puedes anotar el agua o el baño de un día pasado, y corregir un día que quedó mal. También se puede borrar un registro viejo, no solo los de hoy.</p>
+    <div class="meta">
+      <span><b>Fecha:</b> 20 de octubre de 2026</span>
+      <span><b>Paquete:</b> com.motivapeso.app</span>
+      <span><b>versionCode:</b> 4 → 5</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Qué se puede hacer ahora</h2>
+    <div class="grid">
+      <div class="card"><span class="ico">💧</span><b>Agua de otro día</b><p>Botón "＋ Otro día" en el historial de agua. Eliges la fecha y cuántos vasos tomaste. También funciona el lápiz ✎ de cada fila para corregir ese día.</p></div>
+      <div class="card"><span class="ico">🚽</span><b>Baño en otra fecha</b><p>La hoja de baño ahora tiene fecha y hora. Entras desde el "＋" de cada día en "Días anteriores" o desde "＋ Otro día".</p></div>
+      <div class="card"><span class="ico">🗑️</span><b>Borrar registros viejos</b><p>Cada evento de los días anteriores tiene su ✕. Antes solo se podía borrar lo de hoy.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Cómo se usa</h2>
+    <ol class="steps">
+      <li><b>Agua → Historial de agua</b> Toca "＋ Otro día" o el lápiz ✎ de cualquier día.</li>
+      <li><b>Pon la fecha y los vasos</b> Entre 0 y 8. No deja poner fechas futuras.</li>
+      <li><b>Baño → Días anteriores</b> El "＋" abre la hoja con esa fecha ya puesta y la hora en 12:00 para que la ajustes.</li>
+    </ol>
+    <p class="lead" style="margin-top:14px">Si editas el día de hoy, el contador de vasos de la pantalla principal se actualiza igual. Si editas un día pasado, el día de hoy no se toca.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Así se ve</h2>
+    <div class="shots">
+      <figure>
+        <img src="capturas/v23-agua.png" alt="Historial de agua con botón Otro día y lápiz por fila">
+        <figcaption>Historial con "＋ Otro día" y lápiz para editar</figcaption>
+      </figure>
+      <figure>
+        <img src="capturas/v23-agua-otro-dia.png" alt="Hoja para registrar agua de otro día">
+        <figcaption>Hoja de agua: fecha y vasos</figcaption>
+      </figure>
+      <figure>
+        <img src="capturas/v23-bano-dias.png" alt="Días anteriores del baño con conteos y botón de agregar">
+        <figcaption>Baño: días anteriores con conteo y ✕ para borrar</figcaption>
+      </figure>
+      <figure>
+        <img src="capturas/v23-bano-fecha.png" alt="Hoja de baño con fecha y hora">
+        <figcaption>Hoja de baño con fecha y hora editables</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Actualizar sin conflictos</h2>
+    <p class="lead">Revisado antes de publicar, comparando el APK de la 2.1 contra el de la 2.2:</p>
+    <div class="check">
+      <div><span>✓</span><span>Mismo paquete: <code>com.motivapeso.app</code></span></div>
+      <div><span>✓</span><span>Misma firma. Huella SHA-256 del certificado igual en las dos versiones: <code>ce7961d529c2454d7ed288a928c8af7f6a4c75661f1c92f06a8d160e22762266</code></span></div>
+      <div><span>✓</span><span>El <code>versionCode</code> sube siempre (2 → 3 → 4 → 5), que es lo que Android exige para aceptar una actualización.</span></div>
+      <div><span>✓</span><span>Los datos viven en el teléfono, no en el APK: se instala encima y no se borra nada.</span></div>
+      <div><span>✓</span><span>El repositorio tiene una sola rama (<code>main</code>) y el tag coincide con la versión, así que el build no choca con nada.</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  MotivaPeso v2.3 · build 5 · Hecho por Magdalena
+</footer>
+
+</body>
+</html>

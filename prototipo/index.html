@@ -334,8 +334,8 @@ body.ligero .barra{animation:none!important}
 .qbtn:active{transform:scale(.93)}
 
 /* ============ NOTAS DE COMIDA Y BAÑO ============ */
-input[type=text],input[type=number],input[type=date]{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none}
-input[type=text]:focus,input[type=number]:focus,input[type=date]:focus{border-color:var(--primary)}
+input[type=text],input[type=number],input[type=date],input[type=time]{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none}
+input[type=text]:focus,input[type=number]:focus,input[type=date]:focus,input[type=time]:focus{border-color:var(--primary)}
 textarea{width:100%;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;padding:12px 14px;font-size:14.5px;font-family:'Nunito';font-weight:600;color:var(--text);outline:none;resize:vertical;min-height:62px}
 textarea:focus{border-color:var(--primary)}
 .nota-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:11px 2px;border-bottom:1px dashed var(--glass-border)}
@@ -708,7 +708,10 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
             <b><span class="punto" style="background:#2FA8EE"></span>Vasos (meta 8)</b>
           </div>
         </div>
-        <div class="section-title">Historial de agua</div>
+        <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+          Historial de agua
+          <button class="btn glass" style="padding:7px 13px;font-size:12px" onclick="abrirSheetAgua()">＋ Otro día</button>
+        </div>
         <div class="card pad-sm" id="aguaHistorial"></div>
 
         <div class="section-title">Recordatorios</div>
@@ -766,6 +769,13 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         <!-- Historial de hoy -->
         <div class="section-title">Hoy</div>
         <div class="card pad-sm"><div id="listaBanoHist"></div></div>
+
+        <!-- Días anteriores: se puede agregar o borrar en otra fecha -->
+        <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+          Días anteriores
+          <button class="btn glass" style="padding:7px 13px;font-size:12px" onclick="abrirSheetBano('ayer')">＋ Otro día</button>
+        </div>
+        <div class="card pad-sm" id="banoDias"></div>
       </section>
 
       <!-- ============ HORARIO ============ -->
@@ -1020,7 +1030,7 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         <div class="section-title">Actualizaciones</div>
         <div class="card pad-sm">
           <div class="set-row">
-            <div class="set-left"><div class="sr-ico">🔄</div><div class="sr-txt"><b>MotivaPeso <span id="verTxt">v2.2 · build 4</span></b><span id="verEstado">Comprobando…</span></div></div>
+            <div class="set-left"><div class="sr-ico">🔄</div><div class="sr-txt"><b>MotivaPeso <span id="verTxt">v2.3 · build 5</span></b><span id="verEstado">Comprobando…</span></div></div>
             <button class="btn glass" style="padding:9px 14px;font-size:13px" onclick="buscarActualizacion(true)">Revisar</button>
           </div>
           <div id="updCaja"></div>
@@ -1055,6 +1065,10 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
       <div class="sheet" onclick="event.stopPropagation()">
         <div class="sheet-grab"></div>
         <b class="sheet-title">🚽 ¿Qué registraste?</b>
+        <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px">
+          <div style="flex:1"><div class="sheet-lbl">FECHA</div><input type="date" id="banoSheetFecha"></div>
+          <div style="flex:1"><div class="sheet-lbl">HORA</div><input type="time" id="banoSheetHora"></div>
+        </div>
         <div class="sheet-btns">
           <button class="sheet-btn orina" onclick="guardarSheetBano('Orina')"><span class="emo">💧</span>Orina</button>
           <button class="sheet-btn evac" onclick="guardarSheetBano('Evacuación')"><span class="emo">💩</span>Evacuación</button>
@@ -1087,6 +1101,29 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         </div>
         <button class="btn primary full" style="margin-top:14px" onclick="guardarSheetPeso()">Guardar peso</button>
         <button class="btn glass full" style="margin-top:8px;border:0" onclick="cerrarSheetPeso()">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Hoja inferior: agua de otro día -->
+    <div class="sheet-mask" id="sheetAgua" onclick="cerrarSheetAgua()">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-grab"></div>
+        <b class="sheet-title">💧 Agua de otro día</b>
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <div style="flex:1">
+            <div class="sheet-lbl">FECHA</div>
+            <input type="date" id="aguaSheetFecha">
+          </div>
+          <div style="flex:1">
+            <div class="sheet-lbl">VASOS (0-8)</div>
+            <input type="text" id="aguaSheetVal" inputmode="numeric" autocomplete="off" placeholder="ej: 6">
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);font-weight:700;margin-top:10px">
+          Sirve para un día que se te olvidó registrar o para corregir uno que quedó mal.
+        </div>
+        <button class="btn primary full" style="margin-top:14px" onclick="guardarSheetAgua()">Guardar día</button>
+        <button class="btn glass full" style="margin-top:8px;border:0" onclick="cerrarSheetAgua()">Cancelar</button>
       </div>
     </div>
 
@@ -1164,8 +1201,8 @@ function toast(msg){
 }
 
 /* ---------- Versión y actualizaciones ---------- */
-const APP_VERSION = '2.2';
-const APP_VERSION_CODE = 4;
+const APP_VERSION = '2.3';
+const APP_VERSION_CODE = 5;
 const REPO_GH = 'magdalenagonzalez08/motivapeso';
 const URL_RELEASES = 'https://github.com/'+REPO_GH+'/releases/latest';
 
@@ -1596,6 +1633,53 @@ function asegurarDiaActual(){
   toast('Nuevo día · contadores en cero 🌅');
   return true;
 }
+function fechaDe(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function ayerISO(){ const d = new Date(); d.setDate(d.getDate()-1); return fechaDe(d); }
+function ahoraHHMM(){
+  const d = new Date();
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+/* Agua de otro día: sirve para rellenar un día olvidado o corregir uno mal puesto */
+function abrirSheetAgua(fecha){
+  const f = fecha === 'ayer' ? ayerISO() : (fechaValida(fecha) ? fecha : hoyFecha());
+  const reg = aguaHist.find(a=>a.fecha===f);
+  const fEl = document.getElementById('aguaSheetFecha');
+  const vEl = document.getElementById('aguaSheetVal');
+  if(!fEl || !vEl) return;
+  fEl.value = f;
+  fEl.max = hoyFecha();
+  vEl.value = reg ? reg.vasos : '';
+  document.getElementById('sheetAgua').classList.add('show');
+  setTimeout(()=>{ try{ vEl.focus(); vEl.select(); }catch(e){} }, 260);
+}
+function cerrarSheetAgua(){
+  const s = document.getElementById('sheetAgua');
+  if(s) s.classList.remove('show');
+}
+function guardarSheetAgua(){
+  const f = document.getElementById('aguaSheetFecha').value || hoyFecha();
+  const raw = String(document.getElementById('aguaSheetVal').value).trim();
+  const v = parseInt(raw, 10);
+  if(!fechaValida(f)){ toast('Fecha no válida'); return; }
+  if(f > hoyFecha()){ toast('Ese día todavía no llega 🙂'); return; }
+  if(isNaN(v) || v < 0 || v > TOTAL_VASOS){ toast('Pon entre 0 y '+TOTAL_VASOS+' vasos'); return; }
+  const idx = aguaHist.findIndex(a=>a.fecha===f);
+  if(idx >= 0) aguaHist[idx].vasos = v; else aguaHist.push({fecha:f, vasos:v});
+  aguaHist = normalizarAgua(aguaHist);
+  mpSet('aguaHist', aguaHist);
+  if(f === hoyFecha()){
+    vasos = v;
+    mpSet('vasos', vasos);
+    mpSet('vasosFecha', f);
+    pintarAgua(true);
+  } else {
+    renderAguaHistorial();
+  }
+  cerrarSheetAgua();
+  toast('Agua del '+fechaCorta(f)+' · '+v+' de '+TOTAL_VASOS+' vasos 💧');
+}
 function renderAguaHistorial(){
   const el = document.getElementById('aguaHistorial');
   if(!el) return;
@@ -1611,8 +1695,9 @@ function renderAguaHistorial(){
       const ml = a.vasos * 250;
       const pct = Math.round(a.vasos / TOTAL_VASOS * 100);
       return '<div class="hist-row"><div><div class="d">'+nombre+'</div><div class="dt">'+d.getDate()+'/'+(d.getMonth()+1)+'</div></div>'+
-        '<div style="text-align:right"><div class="w">'+ml.toLocaleString('es-ES')+' <small>ml</small></div>'+
-        '<div class="dw '+(pct>=100?'up':'flat')+'">'+a.vasos+'/'+TOTAL_VASOS+' vasos · '+pct+'%</div></div></div>';
+        '<div style="display:flex;align-items:center;gap:8px;text-align:right"><div><div class="w">'+ml.toLocaleString('es-ES')+' <small>ml</small></div>'+
+        '<div class="dw '+(pct>=100?'up':'flat')+'">'+a.vasos+'/'+TOTAL_VASOS+' vasos · '+pct+'%</div></div>'+
+        '<button class="del-x" title="Editar este día" onclick="abrirSheetAgua(\''+a.fecha+'\')" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✎</button></div></div>';
     }).join('');
   }
   pintarAguaChart();
@@ -2243,8 +2328,15 @@ function renderComidaHistorial(){
 /* ----- Registro de baño (orina / evacuación) ----- */
 let registrosBano = [];
 
-/* Hoja inferior: se abre desde Inicio en 1 toque, registra en 2 */
-function abrirSheetBano(){ document.getElementById('sheetBano').classList.add('show'); }
+/* Hoja inferior: se abre desde Inicio en 1 toque, y también con una fecha concreta */
+function abrirSheetBano(fecha){
+  const f = fecha === 'ayer' ? ayerISO() : (fechaValida(fecha) ? fecha : hoyFecha());
+  const fEl = document.getElementById('banoSheetFecha');
+  const hEl = document.getElementById('banoSheetHora');
+  if(fEl){ fEl.value = f; fEl.max = hoyFecha(); }
+  if(hEl) hEl.value = (f === hoyFecha()) ? ahoraHHMM() : '12:00';
+  document.getElementById('sheetBano').classList.add('show');
+}
 function cerrarSheetBano(){
   document.getElementById('sheetBano').classList.remove('show');
   document.getElementById('notaSheetBano').value = '';
@@ -2253,14 +2345,19 @@ function notaSheet(txt){ document.getElementById('notaSheetBano').value = txt; }
 function guardarSheetBano(tipo){
   const inp = document.getElementById('notaSheetBano');
   const nota = inp.value.trim();
-  const d = new Date();
-  const hora = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-  registrosBano.unshift({fecha:hoyFecha(), t:hora, tipo, nota});
+  const fEl = document.getElementById('banoSheetFecha');
+  const hEl = document.getElementById('banoSheetHora');
+  const f = (fEl && fEl.value) || hoyFecha();
+  let hora = (hEl && hEl.value) || ahoraHHMM();
+  if(hora.length > 5) hora = hora.slice(0,5);
+  if(!fechaValida(f)){ toast('Fecha no válida'); return; }
+  if(f > hoyFecha()){ toast('Ese día todavía no llega 🙂'); return; }
+  registrosBano.unshift({fecha:f, t:hora, tipo, nota});
   inp.value = '';
   guardarBanoEstado();
   renderBano();
   cerrarSheetBano();
-  toast((tipo==='Orina'?'💧 Orina':'💩 Evacuación')+' registrada · '+hora+(nota?' · '+nota:''));
+  toast((tipo==='Orina'?'💧 Orina':'💩 Evacuación')+' registrada · '+(f===hoyFecha() ? hora : fechaCorta(f)+' '+hora)+(nota?' · '+nota:''));
 }
 /* Atajo desde Inicio: abrir la hoja (irBano queda por si quieres ir a la tarjeta) */
 function irBano(){ abrirSheetBano(); }
@@ -2299,6 +2396,42 @@ function renderBano(){
   document.getElementById('listaBano').innerHTML = filas;
   document.getElementById('listaBanoHist').innerHTML = filas;
   pintarBanoChart();
+  renderBanoDias();
+}
+/* Días anteriores: resumen por día, con opción de agregar o borrar registros */
+function renderBanoDias(){
+  const el = document.getElementById('banoDias');
+  if(!el) return;
+  const NOM = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  let html = '';
+  for(let i=1;i<=7;i++){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const f = fechaDe(d);
+    const regs = registrosBano.filter(r=>r.fecha===f);
+    const orina = regs.filter(r=>r.tipo==='Orina').length;
+    const evac = regs.filter(r=>r.tipo==='Evacuación').length;
+    const resumen = regs.length ? orina+' orina · '+evac+' evacuación' : 'Sin registros';
+    html += '<div class="hist-row" style="align-items:center"><div><div class="d">'+NOM[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1)+'</div>'+
+      '<div class="dt">'+resumen+'</div></div>'+
+      '<button class="btn glass" style="padding:6px 11px;font-size:12px;flex-shrink:0" onclick="abrirSheetBano(\''+f+'\')">＋</button></div>';
+    if(regs.length){
+      html += '<div style="margin:-2px 0 10px 2px;padding-left:10px;border-left:2px solid var(--glass-border)">'+
+        regs.map(r=>{
+          const gi = registrosBano.indexOf(r);
+          return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;font-weight:700">'+
+            '<span>'+(r.tipo==='Orina'?'💧':'💩')+' '+r.t+(r.nota?' · '+String(r.nota).replace(/</g,'&lt;'):'')+'</span>'+
+            '<button class="del-x" onclick="borrarBanoIdx('+gi+')" title="Borrar" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0 4px">✕</button></div>';
+        }).join('')+'</div>';
+    }
+  }
+  el.innerHTML = html;
+}
+function borrarBanoIdx(i){
+  if(i < 0 || i >= registrosBano.length) return;
+  registrosBano.splice(i,1);
+  guardarBanoEstado();
+  renderBano();
+  toast('Registro eliminado 🗑️');
 }
 /* Datos de la semana: registros reales por fecha */
 function datosBano7d(){

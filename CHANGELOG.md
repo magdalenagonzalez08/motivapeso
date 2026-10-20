@@ -2,6 +2,25 @@
 
 Todos los cambios importantes de MotivaPeso. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y la app usa [versionado semántico](https://semver.org/lang/es/).
 
+## [2.3] - 2026-10-20
+
+Se puede registrar agua y baño en fechas pasadas, y corregir días viejos. Instalación encima de la 2.2 sin perder datos.
+
+### Agregado
+
+- **Agua de otro día**: botón "＋ Otro día" en el historial y lápiz ✎ en cada fila para corregir los vasos de esa fecha.
+- **Baño en otra fecha**: la hoja de registro ahora tiene fecha y hora; se abre con la fecha ya puesta desde el "＋" de cada día.
+- **Días anteriores** en la pantalla de Baño: resumen de los últimos 7 días con conteo de orina y evacuación.
+- **Borrar registros viejos**: cada evento de días anteriores tiene su ✕. Antes solo se borraba lo de hoy.
+
+### Corregido
+
+- El registro de baño siempre guardaba la hora actual, aunque estuvieras apuntando algo de antes.
+
+### Notas técnicas
+
+- `versionCode` pasa de 4 a 5. Misma firma y mismo paquete que la 2.2, verificado comparando el certificado de los APK.
+
 ## [2.2] - 2026-10-20
 
 Versión enfocada en arreglar el historial. La instalación va encima de la 2.1 sin perder datos: mismo paquete (`com.motivapeso.app`) y misma firma.
