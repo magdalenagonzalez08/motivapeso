@@ -21,7 +21,7 @@ La interfaz es una página HTML que metí dentro de una app Android bien liviana
 
 Ábrela en el celular y dale a instalar. Si el teléfono avisa que es una app de fuente desconocida, es normal: no está en Play Store. Dale a "instalar de todos modos" y listo.
 
-Si ya tienes la 2.1 o anterior, instala encima. El paquete y la firma son los mismos, así que se actualiza sin borrar tus registros.
+Si ya tienes la 2.3 o anterior, instala encima. El paquete y la firma son los mismos, así que se actualiza sin borrar tus registros.
 
 ## Actualizaciones
 
@@ -33,13 +33,13 @@ La app revisa sola si hay una versión nueva en GitHub (una vez al día) y te lo
 - Primera vez que la abres: te pregunta tu peso actual, tu peso inicial y tu meta (todo editable después en Ajustes → Mis datos)
 - Frases motivacionales para cuando se cae la constancia
 - Gráfica del peso con anillo de progreso hacia tu meta
-- Historial de peso ordenado por fecha, con la diferencia entre una medición y la anterior, y opción de borrar un registro mal puesto
+- Historial de peso ordenado por fecha, con la diferencia entre una medición y la anterior, y opción de editar la fecha o el valor y de borrar un registro mal puesto
 - Agua y baño de días pasados: puedes rellenar un día que se te olvidó o corregir uno que quedó mal
 - Mis rutinas de fuerza (A los miércoles, B los viernes) con los ejercicios, series y pesos que uso
 - Vasos de agua con meta de 2 litros, historial por día y registro de la última vez que bebiste
 - Registro de baño con gráfica de la semana (sí, también quería ver cuántas veces orinaba al día, sin culpa)
 - Botón de "Hoy corrí o entrené" con cuánto tiempo ha pasado desde el último
-- Notas de comida con hora y resumen de los últimos 7 días
+- Notas de comida con hora, editables, y resumen de los últimos 7 días
 - Mi horario de las dos carreras, con las clases del día y tabla semanal
 - Todo en español, tema claro y oscuro, y se puede cambiar el color de la app
 - Exportar la bitácora del día o el historial a un .txt en Descargas
