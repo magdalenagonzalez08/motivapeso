@@ -580,8 +580,13 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         <!-- Notas de comida (de tu bitácora, con estilo nuevo) -->
         <div class="section-title">Notas de comida</div>
         <div class="card pad-sm">
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <div style="flex:1"><div class="sheet-lbl">FECHA</div><input type="date" id="notaFecha"></div>
+            <div style="flex:1"><div class="sheet-lbl">HORA</div><input type="time" id="notaHora"></div>
+          </div>
           <textarea id="notaComida" placeholder="¿Qué comiste? Ej: 2 huevos + pan integral…"></textarea>
-          <button class="btn primary full" onclick="guardarNota()">＋ Guardar nota</button>
+          <button class="btn primary full" id="notaGuardarBtn" onclick="guardarNota()">＋ Guardar nota</button>
+          <button class="btn glass full" id="notaCancelar" onclick="cancelarEdicionNota()" style="display:none;margin-top:6px;border:0">Cancelar edición</button>
           <div id="listaNotas" style="margin-top:4px"></div>
         </div>
 
@@ -1030,7 +1035,7 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
         <div class="section-title">Actualizaciones</div>
         <div class="card pad-sm">
           <div class="set-row">
-            <div class="set-left"><div class="sr-ico">🔄</div><div class="sr-txt"><b>MotivaPeso <span id="verTxt">v2.3 · build 5</span></b><span id="verEstado">Comprobando…</span></div></div>
+            <div class="set-left"><div class="sr-ico">🔄</div><div class="sr-txt"><b>MotivaPeso <span id="verTxt">v2.4 · build 6</span></b><span id="verEstado">Comprobando…</span></div></div>
             <button class="btn glass" style="padding:9px 14px;font-size:13px" onclick="buscarActualizacion(true)">Revisar</button>
           </div>
           <div id="updCaja"></div>
@@ -1064,7 +1069,7 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
     <div class="sheet-mask" id="sheetBano" onclick="cerrarSheetBano()">
       <div class="sheet" onclick="event.stopPropagation()">
         <div class="sheet-grab"></div>
-        <b class="sheet-title">🚽 ¿Qué registraste?</b>
+        <b class="sheet-title" id="banoSheetTitle">🚽 ¿Qué registraste?</b>
         <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px">
           <div style="flex:1"><div class="sheet-lbl">FECHA</div><input type="date" id="banoSheetFecha"></div>
           <div style="flex:1"><div class="sheet-lbl">HORA</div><input type="time" id="banoSheetHora"></div>
@@ -1088,7 +1093,7 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
     <div class="sheet-mask" id="sheetPeso" onclick="cerrarSheetPeso()">
       <div class="sheet" onclick="event.stopPropagation()">
         <div class="sheet-grab"></div>
-        <b class="sheet-title">⚖️ Registrar peso</b>
+        <b class="sheet-title" id="pesoSheetTitle">⚖️ Registrar peso</b>
         <div style="display:flex;gap:10px;align-items:flex-end">
           <div style="flex:1">
             <div class="sheet-lbl">PESO (KG)</div>
@@ -1099,7 +1104,7 @@ body.ligero .sheet,body.ligero .sheet-mask{transition:none}
             <input type="date" id="pesoSheetFecha">
           </div>
         </div>
-        <button class="btn primary full" style="margin-top:14px" onclick="guardarSheetPeso()">Guardar peso</button>
+        <button class="btn primary full" id="pesoSheetBtn" style="margin-top:14px" onclick="guardarSheetPeso()">Guardar peso</button>
         <button class="btn glass full" style="margin-top:8px;border:0" onclick="cerrarSheetPeso()">Cancelar</button>
       </div>
     </div>
@@ -1201,8 +1206,8 @@ function toast(msg){
 }
 
 /* ---------- Versión y actualizaciones ---------- */
-const APP_VERSION = '2.3';
-const APP_VERSION_CODE = 5;
+const APP_VERSION = '2.4';
+const APP_VERSION_CODE = 6;
 const REPO_GH = 'magdalenagonzalez08/motivapeso';
 const URL_RELEASES = 'https://github.com/'+REPO_GH+'/releases/latest';
 
@@ -1459,20 +1464,29 @@ function rangoPeso(r, btn){
   renderPeso();
 }
 
-/* Registrar un peso: pide el valor real, nunca inventa datos */
+/* Registrar o editar un peso: pide el valor real, nunca inventa datos */
+let pesoEditando = null;
 function registrarPeso(){ abrirSheetPeso(); }
-function abrirSheetPeso(){
+function abrirSheetPeso(fecha){
+  const f = (typeof fecha === 'string' && fechaValida(fecha)) ? fecha : null;
+  const reg = f ? registrosPeso.find(r=>r.fecha===f) : null;
+  pesoEditando = reg ? f : null;
   const u = ultimoPeso();
   const inp = document.getElementById('pesoSheetVal');
   const fch = document.getElementById('pesoSheetFecha');
   if(!inp || !fch) return;
-  inp.value = u !== null ? u.toFixed(1) : (pesoDesde > 0 ? pesoDesde.toFixed(1) : '');
-  fch.value = hoyFecha();
+  inp.value = reg ? reg.peso.toFixed(1) : (u !== null ? u.toFixed(1) : (pesoDesde > 0 ? pesoDesde.toFixed(1) : ''));
+  fch.value = reg ? reg.fecha : hoyFecha();
   fch.max = hoyFecha();
+  const t = document.getElementById('pesoSheetTitle');
+  if(t) t.textContent = reg ? '✏️ Editar peso' : '⚖️ Registrar peso';
+  const b = document.getElementById('pesoSheetBtn');
+  if(b) b.textContent = reg ? 'Guardar cambios' : 'Guardar peso';
   document.getElementById('sheetPeso').classList.add('show');
   setTimeout(()=>{ try{ inp.focus(); inp.select(); }catch(e){} }, 260);
 }
 function cerrarSheetPeso(){
+  pesoEditando = null;
   const s = document.getElementById('sheetPeso');
   if(s) s.classList.remove('show');
 }
@@ -1484,11 +1498,14 @@ function guardarSheetPeso(){
   if(isNaN(v) || v < 30 || v > 200){ toast('Peso no válido (30 a 200 kg)'); return; }
   if(!fechaValida(f)){ toast('Fecha no válida'); return; }
   if(f > hoyFecha()){ toast('No puedes registrar un peso futuro'); return; }
+  const editando = pesoEditando;
+  if(editando) registrosPeso = registrosPeso.filter(r=>r.fecha !== editando);
   registrarPesoEnFecha(f, v);
+  pesoEditando = null;
   const ip = document.getElementById('inpPeso');
   if(ip) ip.value = v.toFixed(1);
   cerrarSheetPeso();
-  toast('Peso '+fmt(v)+' kg · '+fechaCorta(f)+' ⚖️');
+  toast((editando ? 'Peso actualizado' : 'Peso')+' '+fmt(v)+' kg · '+fechaCorta(f)+' ⚖️');
 }
 
 /* ============================================================
@@ -1697,10 +1714,32 @@ function renderAguaHistorial(){
       return '<div class="hist-row"><div><div class="d">'+nombre+'</div><div class="dt">'+d.getDate()+'/'+(d.getMonth()+1)+'</div></div>'+
         '<div style="display:flex;align-items:center;gap:8px;text-align:right"><div><div class="w">'+ml.toLocaleString('es-ES')+' <small>ml</small></div>'+
         '<div class="dw '+(pct>=100?'up':'flat')+'">'+a.vasos+'/'+TOTAL_VASOS+' vasos · '+pct+'%</div></div>'+
-        '<button class="del-x" title="Editar este día" onclick="abrirSheetAgua(\''+a.fecha+'\')" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✎</button></div></div>';
+        '<button class="del-x" title="Editar este día" onclick="abrirSheetAgua(\''+a.fecha+'\')" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✎</button>'+
+        '<button class="del-x" title="Borrar este día" onclick="borrarAguaDia(\''+a.fecha+'\',this)" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✕</button></div></div>';
     }).join('');
   }
   pintarAguaChart();
+}
+function borrarAguaDia(f, btn){
+  if(!fechaValida(f)) return;
+  if(btn.dataset.confirm !== '1'){
+    btn.dataset.confirm = '1';
+    btn.textContent = '¿?';
+    const vuelve = ()=>{ btn.dataset.confirm = ''; btn.textContent = '✕'; };
+    setTimeout(vuelve, 2500);
+    toast('Toca otra vez para borrar el agua del '+fechaCorta(f));
+    return;
+  }
+  aguaHist = aguaHist.filter(a=>a.fecha !== f);
+  mpSet('aguaHist', aguaHist);
+  if(f === hoyFecha()){
+    vasos = 0;
+    mpSet('vasos', 0);
+    mpSet('vasosFecha', f);
+    pintarAgua();
+  }
+  renderAguaHistorial();
+  toast('Agua del '+fechaCorta(f)+' borrada 🗑️');
 }
 function pintarAguaChart(){
   const chart = document.getElementById('aguaChart');
@@ -1947,7 +1986,8 @@ function registrarPesoEnFecha(fecha, peso){
   const valor = Math.round(p*10)/10;
   registrosPeso = normalizarPesos(registrosPeso.concat([{fecha:fecha, peso:valor}]));
   mpSet('registrosPeso', registrosPeso);
-  mpSet('pesoActual', valor);
+  const ultimo = registrosPeso.length ? registrosPeso[registrosPeso.length-1].peso : valor;
+  mpSet('pesoActual', ultimo);
   actualizarTodoPeso();
   return true;
 }
@@ -2006,6 +2046,7 @@ function renderHistorial(){
     const nombre = r.fecha === hoy ? 'Hoy' : r.fecha === ayer ? 'Ayer' : NOMD[dt.getDay()];
     return '<div class="hist-row"><div><div class="d">'+nombre+'</div><div class="dt">'+dt.getDate()+'/'+(dt.getMonth()+1)+'/'+dt.getFullYear()+'</div></div>'+
       '<div style="display:flex;align-items:center;gap:8px;text-align:right"><div><div class="w">'+fmt(r.peso)+' <small>kg</small></div>'+sub+'</div>'+
+      '<button class="del-x" title="Editar este registro" onclick="abrirSheetPeso(\''+r.fecha+'\')" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✎</button>'+
       '<button class="del-x" title="Borrar este registro" onclick="borrarPeso(\''+r.fecha+'\',this)" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✕</button></div></div>';
   }).join('');
   hist.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 2px 8px;font-size:11.5px;font-weight:900;color:var(--muted);letter-spacing:.3px;text-transform:uppercase">'+
@@ -2242,44 +2283,94 @@ function actualizarProximaClase(){
 }
 function irNota(){
   go('peso');
+  cancelarEdicionNota();
   setTimeout(()=>document.getElementById('notaComida').focus(), 450);
 }
 
 /* ----- Notas de comida ----- */
 let notasComida = [];
+let notaEditando = -1;
 function guardarNota(){
   const ta = document.getElementById('notaComida');
   const txt = ta.value.trim();
   if(!txt){ ta.focus(); toast('Escribe qué comiste primero 🍽️'); return; }
-  const d = new Date();
-  notasComida.unshift({fecha:hoyFecha(), t:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'), txt});
+  const fEl = document.getElementById('notaFecha');
+  const hEl = document.getElementById('notaHora');
+  const f = (fEl && fEl.value) || hoyFecha();
+  let hora = (hEl && hEl.value) || ahoraHHMM();
+  if(hora.length > 5) hora = hora.slice(0,5);
+  if(!fechaValida(f)){ toast('Fecha no válida'); return; }
+  if(f > hoyFecha()){ toast('Ese día todavía no llega 🙂'); return; }
+  if(notaEditando >= 0 && notasComida[notaEditando]){
+    Object.assign(notasComida[notaEditando], {fecha:f, t:hora, txt});
+    toast('Nota actualizada 🍽️');
+  } else {
+    notasComida.unshift({fecha:f, t:hora, txt});
+    toast('Nota guardada 🍽️');
+  }
+  notaEditando = -1;
   ta.value = '';
+  if(fEl) fEl.value = hoyFecha();
+  if(hEl) hEl.value = ahoraHHMM();
+  const btn = document.getElementById('notaGuardarBtn');
+  if(btn) btn.textContent = '＋ Guardar nota';
+  const can = document.getElementById('notaCancelar');
+  if(can) can.style.display = 'none';
   guardarNotasEstado();
   renderNotas();
   renderComidaHistorial();
-  toast('Nota guardada 🍽️');
 }
-function renderNotas(){
-  const el = document.getElementById('listaNotas');
-  const hoy = notasComida.filter(n=>n.fecha===hoyFecha());
-  if(!hoy.length){
-    el.innerHTML = '<div class="vacio">Sin notas todavía · apunta lo que comes 💪</div>';
-    return;
-  }
-  el.innerHTML = hoy.map((n,i)=>
-    '<div class="nota-row"><div class="nt">'+n.txt.replace(/</g,'&lt;')+'</div><span style="display:flex;align-items:center;gap:6px"><span class="nh">'+n.t+'</span>'+
-    '<button class="del-x" onclick="borrarNota('+i+')" title="Borrar" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✕</button></span></div>').join('');
+function cancelarEdicionNota(){
+  notaEditando = -1;
+  const ta = document.getElementById('notaComida');
+  if(ta) ta.value = '';
+  const fEl = document.getElementById('notaFecha');
+  const hEl = document.getElementById('notaHora');
+  if(fEl) fEl.value = hoyFecha();
+  if(hEl) hEl.value = ahoraHHMM();
+  const btn = document.getElementById('notaGuardarBtn');
+  if(btn) btn.textContent = '＋ Guardar nota';
+  const can = document.getElementById('notaCancelar');
+  if(can) can.style.display = 'none';
 }
-function borrarNota(i){
-  const hoy = notasComida.filter(n=>n.fecha===hoyFecha());
-  const target = hoy[i];
-  if(!target) return;
-  const idx = notasComida.indexOf(target);
-  if(idx>=0) notasComida.splice(idx,1);
+function editarNota(idx){
+  const n = notasComida[idx];
+  if(!n) return;
+  notaEditando = idx;
+  const ta = document.getElementById('notaComida');
+  ta.value = n.txt || '';
+  const fEl = document.getElementById('notaFecha');
+  const hEl = document.getElementById('notaHora');
+  if(fEl) fEl.value = n.fecha || hoyFecha();
+  if(hEl) hEl.value = n.t || ahoraHHMM();
+  const btn = document.getElementById('notaGuardarBtn');
+  if(btn) btn.textContent = '💾 Guardar cambios';
+  const can = document.getElementById('notaCancelar');
+  if(can) can.style.display = '';
+  try{ ta.scrollIntoView({block:'center', behavior:'smooth'}); }catch(e){}
+  setTimeout(()=>{ try{ ta.focus(); ta.select(); }catch(e){} }, 300);
+}
+function borrarNotaIdx(idx){
+  if(idx < 0 || idx >= notasComida.length) return;
+  notasComida.splice(idx,1);
+  if(notaEditando === idx) cancelarEdicionNota();
+  else if(notaEditando > idx) notaEditando--;
   guardarNotasEstado();
   renderNotas();
   renderComidaHistorial();
   toast('Nota borrada 🗑️');
+}
+function renderNotas(){
+  const el = document.getElementById('listaNotas');
+  const hoy = notasComida.map((n,idx)=>({n,idx})).filter(x=>x.n.fecha===hoyFecha());
+  if(!hoy.length){
+    el.innerHTML = '<div class="vacio">Sin notas todavía · apunta lo que comes 💪</div>';
+    return;
+  }
+  el.innerHTML = hoy.map(x=>
+    '<div class="nota-row"><div class="nt">'+String(x.n.txt).replace(/</g,'&lt;')+'</div><span style="display:flex;align-items:center;gap:6px"><span class="nh">'+x.n.t+'</span>'+
+    '<button class="del-x" onclick="editarNota('+x.idx+')" title="Editar" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✎</button>'+
+    '<button class="del-x" onclick="borrarNotaIdx('+x.idx+')" title="Borrar" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px">✕</button></span></div>').join('');
 }
 function renderComidaHistorial(){
   const chartEl = document.getElementById('comidaChart');
@@ -2316,9 +2407,12 @@ function renderComidaHistorial(){
         const d = new Date(n.fecha+'T12:00:00');
         const esHoy = n.fecha === hoyFecha();
         const nombre = esHoy ? 'Hoy' : NOM[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1);
+        const idx = notasComida.indexOf(n);
         return '<div class="hist-row"><div><div class="d" style="font-size:12.5px">'+nombre+'</div>'+
           '<div class="dt">'+n.txt.replace(/</g,'&lt;').slice(0,60)+'</div></div>'+
-          '<span class="nh" style="flex-shrink:0;margin-left:8px">'+n.t+'</span></div>';
+          '<span style="display:flex;align-items:center;gap:3px;flex-shrink:0;margin-left:8px"><span class="nh">'+n.t+'</span>'+
+          '<button class="del-x" onclick="editarNota('+idx+')" title="Editar" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0 3px">✎</button>'+
+          '<button class="del-x" onclick="borrarNotaIdx('+idx+')" title="Borrar" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0 3px">✕</button></span></div>';
       }).join('');
   } else {
     listEl.innerHTML = '';
@@ -2329,17 +2423,29 @@ function renderComidaHistorial(){
 let registrosBano = [];
 
 /* Hoja inferior: se abre desde Inicio en 1 toque, y también con una fecha concreta */
-function abrirSheetBano(fecha){
-  const f = fecha === 'ayer' ? ayerISO() : (fechaValida(fecha) ? fecha : hoyFecha());
+let banoEditando = -1;
+function abrirSheetBano(fecha, idx){
+  const reg = (typeof idx === 'number' && registrosBano[idx]) ? registrosBano[idx] : null;
+  banoEditando = reg ? idx : -1;
+  const f = reg ? reg.fecha : (fecha === 'ayer' ? ayerISO() : (fechaValida(fecha) ? fecha : hoyFecha()));
   const fEl = document.getElementById('banoSheetFecha');
   const hEl = document.getElementById('banoSheetHora');
   if(fEl){ fEl.value = f; fEl.max = hoyFecha(); }
-  if(hEl) hEl.value = (f === hoyFecha()) ? ahoraHHMM() : '12:00';
+  if(hEl) hEl.value = reg ? reg.t : ((f === hoyFecha()) ? ahoraHHMM() : '12:00');
+  const nEl = document.getElementById('notaSheetBano');
+  if(nEl) nEl.value = reg ? (reg.nota || '') : '';
+  const t = document.getElementById('banoSheetTitle');
+  if(t) t.textContent = reg ? '✏️ Editar baño' : '🚽 ¿Qué registraste?';
   document.getElementById('sheetBano').classList.add('show');
 }
 function cerrarSheetBano(){
-  document.getElementById('sheetBano').classList.remove('show');
-  document.getElementById('notaSheetBano').value = '';
+  banoEditando = -1;
+  const s = document.getElementById('sheetBano');
+  if(s) s.classList.remove('show');
+  const n = document.getElementById('notaSheetBano');
+  if(n) n.value = '';
+  const t = document.getElementById('banoSheetTitle');
+  if(t) t.textContent = '🚽 ¿Qué registraste?';
 }
 function notaSheet(txt){ document.getElementById('notaSheetBano').value = txt; }
 function guardarSheetBano(tipo){
@@ -2352,12 +2458,18 @@ function guardarSheetBano(tipo){
   if(hora.length > 5) hora = hora.slice(0,5);
   if(!fechaValida(f)){ toast('Fecha no válida'); return; }
   if(f > hoyFecha()){ toast('Ese día todavía no llega 🙂'); return; }
-  registrosBano.unshift({fecha:f, t:hora, tipo, nota});
+  const editando = banoEditando;
+  if(editando >= 0 && registrosBano[editando]){
+    Object.assign(registrosBano[editando], {fecha:f, t:hora, tipo, nota});
+  } else {
+    registrosBano.unshift({fecha:f, t:hora, tipo, nota});
+  }
+  banoEditando = -1;
   inp.value = '';
   guardarBanoEstado();
   renderBano();
   cerrarSheetBano();
-  toast((tipo==='Orina'?'💧 Orina':'💩 Evacuación')+' registrada · '+(f===hoyFecha() ? hora : fechaCorta(f)+' '+hora)+(nota?' · '+nota:''));
+  toast((editando >= 0 ? 'Baño actualizado' : (tipo==='Orina'?'💧 Orina':'💩 Evacuación')+' registrada')+' · '+(f===hoyFecha() ? hora : fechaCorta(f)+' '+hora)+(nota?' · '+nota:''));
 }
 /* Atajo desde Inicio: abrir la hoja (irBano queda por si quieres ir a la tarjeta) */
 function irBano(){ abrirSheetBano(); }
@@ -2387,11 +2499,14 @@ function renderBano(){
   document.getElementById('statSemBano').textContent = sem;
   document.getElementById('statProBano').textContent = (sem/7).toFixed(1);
   const filas = n
-    ? hoy.map((b,i)=>
-        '<div class="nota-row"><div class="nt">'+b.tipo+
+    ? hoy.map((b,i)=>{
+        const gi = registrosBano.indexOf(b);
+        return '<div class="nota-row"><div class="nt">'+b.tipo+
         (b.nota ? ' <span style="color:var(--muted);font-weight:600">- '+b.nota.replace(/</g,'&lt;')+'</span>' : '')+
         '</div><span style="display:flex;align-items:center;gap:6px"><span class="nh">'+b.t+'</span>'+
-        '<button class="del-x" onclick="borrarBano('+i+')" title="Borrar">✕</button></span></div>').join('')
+        '<button class="del-x" onclick="abrirSheetBano(null,'+gi+')" title="Editar">✎</button>'+
+        '<button class="del-x" onclick="borrarBano('+i+')" title="Borrar">✕</button></span></div>';
+      }).join('')
     : '<div class="vacio">Sin registros hoy · toca un botón para registrar 🚽</div>';
   document.getElementById('listaBano').innerHTML = filas;
   document.getElementById('listaBanoHist').innerHTML = filas;
@@ -2420,7 +2535,9 @@ function renderBanoDias(){
           const gi = registrosBano.indexOf(r);
           return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;font-weight:700">'+
             '<span>'+(r.tipo==='Orina'?'💧':'💩')+' '+r.t+(r.nota?' · '+String(r.nota).replace(/</g,'&lt;'):'')+'</span>'+
-            '<button class="del-x" onclick="borrarBanoIdx('+gi+')" title="Borrar" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0 4px">✕</button></div>';
+            '<span style="display:flex;align-items:center;gap:2px;flex-shrink:0">'+
+            '<button class="del-x" onclick="abrirSheetBano(null,'+gi+')" title="Editar" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0 4px">✎</button>'+
+            '<button class="del-x" onclick="borrarBanoIdx('+gi+')" title="Borrar" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0 4px">✕</button></span></div>';
         }).join('')+'</div>';
     }
   }
@@ -2667,6 +2784,11 @@ function revisionAutomatica(){
 
 /* ---------- Arranque ---------- */
 cargarEstado();
+(function initNotaForm(){
+  const f = document.getElementById('notaFecha'), h = document.getElementById('notaHora');
+  if(f) f.value = hoyFecha();
+  if(h) h.value = ahoraHHMM();
+})();
 actualizarTodoPeso();
 pintarAgua(true);
 mostrarUltimaAgua();

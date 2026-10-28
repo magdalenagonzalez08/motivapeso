@@ -2,6 +2,27 @@
 
 Todos los cambios importantes de MotivaPeso. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y la app usa [versionado semántico](https://semver.org/lang/es/).
 
+## [2.4] - 2026-10-28
+
+CRUD completo en los registros diarios: se pueden editar la fecha, la hora y el contenido de lo ya guardado, además de borrarlo. Instalación encima de la 2.3 sin perder datos.
+
+### Agregado
+
+- **Editar peso**: el lápiz ✎ del historial abre la hoja con el valor y la fecha ya cargados. Al guardar, el día se reemplaza y el historial se reordena.
+- **Editar baño**: desde Hoy o desde Días anteriores se abre la hoja en modo edición con fecha, hora, tipo y nota. Antes solo se podía borrar y volver a escribir.
+- **Editar notas de comida**: cada nota tiene ✎ para cambiar el texto, la fecha y la hora. También se pueden borrar desde el historial de 7 días.
+- **Fecha y hora al crear notas**: la sección de comida ahora pide fecha y hora, así se puede apuntar algo de ayer sin inventar la hora actual.
+- **Borrar el agua de un día**: botón ✕ en el historial, con doble toque para confirmar.
+
+### Corregido
+
+- Registrar un peso de una fecha pasada ya no cambia el "peso actual" a ese valor viejo; se toma siempre la última medición por fecha.
+- Las notas y los registros de baño ahora se actualizan en su sitio al cambiar de día, sin dejar duplicados.
+
+### Notas técnicas
+
+- `versionCode` pasa de 5 a 6. Misma firma y mismo paquete que la 2.3.
+
 ## [2.3] - 2026-10-20
 
 Se puede registrar agua y baño en fechas pasadas, y corregir días viejos. Instalación encima de la 2.2 sin perder datos.

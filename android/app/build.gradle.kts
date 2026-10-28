@@ -11,8 +11,8 @@ android {
         applicationId = "com.motivapeso.app"
         minSdk = 29
         targetSdk = 34
-        versionCode = 5
-        versionName = "2.3"
+        versionCode = 6
+        versionName = "2.4"
     }
 
     sourceSets {

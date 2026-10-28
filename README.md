@@ -1,6 +1,6 @@
 # MotivaPeso
 
-[![Descargar APK](https://img.shields.io/badge/Descargar-APK%20v2.3-FF7A45?style=for-the-badge&logo=android)](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)
+[![Descargar APK](https://img.shields.io/badge/Descargar-APK%20v2.4-FF7A45?style=for-the-badge&logo=android)](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)
 ![Android 10+](https://img.shields.io/badge/Android-10%2B-3DDC84?style=flat-square&logo=android)
 ![Tamaño](https://img.shields.io/badge/tamaño-~3%20MB-lightgrey?style=flat-square)
 ![Acción](https://img.shields.io/github/actions/workflow/status/magdalenagonzalez08/motivapeso/build-apk.yml?branch=main&style=flat-square)
@@ -17,7 +17,7 @@ La interfaz es una página HTML que metí dentro de una app Android bien liviana
 
 ## Bajarla
 
-**[Descargar MotivaPeso v2.3](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)**
+**[Descargar MotivaPeso v2.4](https://github.com/magdalenagonzalez08/motivapeso/releases/latest)**
 
 Ábrela en el celular y dale a instalar. Si el teléfono avisa que es una app de fuente desconocida, es normal: no está en Play Store. Dale a "instalar de todos modos" y listo.
 
@@ -44,6 +44,14 @@ La app revisa sola si hay una versión nueva en GitHub (una vez al día) y te lo
 - Todo en español, tema claro y oscuro, y se puede cambiar el color de la app
 - Exportar la bitácora del día o el historial a un .txt en Descargas
 - Aviso de versión nueva dentro de la app
+
+## Qué cambió en la 2.4
+
+- Ahora puedes **editar** un peso mal registrado: toca el lápiz ✎ en el historial y cambia el valor o la fecha
+- El **baño** se puede corregir desde Hoy y desde Días anteriores: fecha, hora, tipo y nota
+- Las **notas de comida** se pueden editar (texto, fecha y hora) y borrar, tanto las de hoy como las del historial
+- El **agua** de un día también se puede borrar desde el historial, con doble toque para confirmar
+- Al mover un registro a otra fecha, el historial se reordena solo y no quedan días duplicados
 
 ## Qué cambió en la 2.3
 
